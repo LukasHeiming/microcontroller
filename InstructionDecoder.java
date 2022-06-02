@@ -31,13 +31,13 @@ public class InstructionDecoder {
                 break;
         }
 
-        if(index != -1){
+        if (index != -1) {
             instructionToDecode = instructionToDecode.substring(0, index);
         }
 
         instructionToDecode = instructionToDecode.toUpperCase();
 
-        if(instructionToDecode.equals("RETURN")){
+        if (instructionToDecode.equals("RETURN")) {
             paraDone = true;
         }
 
@@ -71,12 +71,12 @@ public class InstructionDecoder {
 
         switch (instructionToDecode) {
             case "ADDWF":
-            //todo
+                // todo
                 ADDWF(0, 0);
                 break;
 
             case "ANDWF":
-            //todo
+                // todo
                 ANDWF(0, 0);
                 break;
 
@@ -89,42 +89,44 @@ public class InstructionDecoder {
                 break;
 
             case "COMF":
-            //todo
+                // todo
                 COMF(0, 0);
                 break;
 
             case "DECF":
-            //todo
+                // todo
                 DECF(0, 0);
                 break;
 
             case "DECFSZ":
-            //todo
+                // todo
                 DECFZS(0, 0);
                 break;
 
             case "INCF":
-            //todo
+                // todo
                 INCF(0, 0);
                 break;
 
             case "INCFSZ":
-            //todo
+                // todo
                 INCFSZ(0, 0);
                 break;
 
             case "IORWF":
-            //todo
-                IORWF(0, 0);
+                // todo
+                /*
+                 * IORWF(0, 0);
+                 */
                 break;
 
             case "MOVF":
-            //todo
+                // todo
                 MOVF(0, 0);
                 break;
 
             case "MOVWF":
-            //todo
+                // todo
                 MOVWF(0);
                 break;
 
@@ -133,32 +135,32 @@ public class InstructionDecoder {
                 break;
 
             case "RLF":
-            //todo
+                // todo
                 RLF(0, 0);
                 break;
 
             case "RRF":
-            //todo
+                // todo
                 RRF(0, 0);
                 break;
 
             case "SUBWF":
-            //todo
+                // todo
                 SUBWF(0, 0);
                 break;
 
             case "SWAPF":
-            //todo
+                // todo
                 SWAPF(0, 0);
                 break;
 
             case "XORWF":
-            //todo
+                // todo
                 XORWF(0, 0);
                 break;
 
             case "BCF":
-            //todo
+                // todo
                 BCF(0, 0);
                 break;
 
@@ -167,12 +169,12 @@ public class InstructionDecoder {
                 break;
 
             case "BTFSC":
-            //todo
+                // todo
                 BTFSC(0, 0);
                 break;
 
             case "BTFSS":
-            //todo
+                // todo
                 BTFSS(0, 0);
                 break;
 
@@ -236,15 +238,24 @@ public class InstructionDecoder {
     // BYTE-ORIENTED FILE REGISTER
     // OPERATIONS-------------------------------------------------------------
     public static void ADDWF(int f, int d) {
+        if (W_Register.getValue() + RAM.getRam(f) > 255 || W_Register.getValue() + RAM.getRam(f) < 0) {
+            StatusReg.setCarryFlag(1);
+        } else {
+            StatusReg.setCarryFlag(0);
+        }
         if (d == 0) {
             W_Register.setValue(W_Register.getValue() + RAM.getRam(f));
             if (W_Register.getValue() == 0) {
                 StatusReg.setZeroFlag(1);
+            } else {
+                StatusReg.setZeroFlag(0);
             }
         } else {
             RAM.setRam(W_Register.getValue() + RAM.getRam(f), f);
             if (RAM.getRam(f) == 0) {
                 StatusReg.setZeroFlag(1);
+            } else {
+                StatusReg.setZeroFlag(0);
             }
         }
 
@@ -256,11 +267,15 @@ public class InstructionDecoder {
             W_Register.setValue(W_Register.getValue() & RAM.getRam(f));
             if (W_Register.getValue() == 0) {
                 StatusReg.setZeroFlag(1);
+            } else {
+                StatusReg.setZeroFlag(0);
             }
         } else {
             RAM.setRam(W_Register.getValue() & RAM.getRam(f), f);
             if (RAM.getRam(f) == 0) {
                 StatusReg.setZeroFlag(1);
+            } else {
+                StatusReg.setZeroFlag(0);
             }
         }
         return;
@@ -270,6 +285,8 @@ public class InstructionDecoder {
         RAM.setRam(0, f);
         if (RAM.getRam(f) == 0) {
             StatusReg.setZeroFlag(1);
+        } else {
+            StatusReg.setZeroFlag(0);
         }
         return;
     }
@@ -277,7 +294,6 @@ public class InstructionDecoder {
     public static void CLRW() {
         W_Register.setValue(0);
         StatusReg.setZeroFlag(1);
-
         return;
     }
 
@@ -286,11 +302,15 @@ public class InstructionDecoder {
             W_Register.setValue(RAM.getRam(f) ^ 0b11111111);
             if (W_Register.getValue() == 0) {
                 StatusReg.setZeroFlag(1);
+            } else {
+                StatusReg.setZeroFlag(0);
             }
         } else {
             RAM.setRam(RAM.getRam(f) ^ 0b11111111, f);
             if (RAM.getRam(f) == 0) {
                 StatusReg.setZeroFlag(1);
+            } else {
+                StatusReg.setZeroFlag(0);
             }
         }
         return;
@@ -301,11 +321,15 @@ public class InstructionDecoder {
             W_Register.setValue(RAM.getRam(f) - 1);
             if (W_Register.getValue() == 0) {
                 StatusReg.setZeroFlag(1);
+            } else {
+                StatusReg.setZeroFlag(0);
             }
         } else {
             RAM.setRam(RAM.getRam(f) - 1, f);
             if (RAM.getRam(f) == 0) {
                 StatusReg.setZeroFlag(1);
+            } else {
+                StatusReg.setZeroFlag(0);
             }
         }
         return;
@@ -331,11 +355,15 @@ public class InstructionDecoder {
             W_Register.setValue(RAM.getRam(f) + 1);
             if (W_Register.getValue() == 0) {
                 StatusReg.setZeroFlag(1);
+            } else {
+                StatusReg.setZeroFlag(0);
             }
         } else {
             RAM.setRam(RAM.getRam(f) + 1, f);
             if (RAM.getRam(f) == 0) {
                 StatusReg.setZeroFlag(1);
+            } else {
+                StatusReg.setZeroFlag(0);
             }
         }
         return;
@@ -356,31 +384,37 @@ public class InstructionDecoder {
         return;
     }
 
-    public static void IORWF(int f, int d) {
-        if (d == 0) {
-            W_Register.setValue(RAM.getRam(f) | W_Register.getValue());
-            if (W_Register.getValue() == 0) {
-                StatusReg.setZeroFlag(1);
-            }
-        } else {
-            RAM.setRam(RAM.getRam(f) | W_Register.getValue(), f);
-            if (RAM.getRam(f) == 0) {
-                StatusReg.setZeroFlag(1);
-            }
-        }
-    }
+    /*
+     * public static void IORWF(int f, int d) {
+     * if (d == 0) {
+     * W_Register.setValue(RAM.getRam(f) | W_Register.getValue());
+     * if (W_Register.getValue() == 0) {
+     * StatusReg.setZeroFlag(1);
+     * }
+     * } else {
+     * RAM.setRam(RAM.getRam(f) | W_Register.getValue(), f);
+     * if (RAM.getRam(f) == 0) {
+     * StatusReg.setZeroFlag(1);
+     * }
+     * }
+     * }
+     */
 
     public static void MOVF(int f, int d) {
         if (d == 0) {
             W_Register.setValue(RAM.getRam(f));
             if (W_Register.getValue() == 0) {
                 StatusReg.setZeroFlag(1);
+            } else {
+                StatusReg.setZeroFlag(0);
             }
         }
         if (d == 1) {
             RAM.setRam(RAM.getRam(f), f);
             if (RAM.getRam(f) == 0) {
                 StatusReg.setZeroFlag(1);
+            } else {
+                StatusReg.setZeroFlag(0);
             }
         }
         return;
@@ -398,45 +432,46 @@ public class InstructionDecoder {
     public static void RLF(int f, int d) {
         // int temp = RAM.getCarryFlag();
         int temp = StatusReg.getCarryFlag();
+        int temp1 = ((RAM.getRam(f) & 0b01000000) >> 6);
+        StatusReg.setCarryFlag(temp1);
         if (d == 0) {
-            // RAM.setCarryFLag((RAM.getRam(f)>>7)&1);
-            StatusReg.setCarryFlag((RAM.getRam(f)) & 1);
-            W_Register.setValue(RAM.getRam(f) << 1);
-            modifyBit(W_Register.getValue(), 0, temp);
+            W_Register.setValue((RAM.getRam(f) << 1) + temp);
         } else {
-            // RAM.setCarryFLag((RAM.getRam(f)>>7)&1);
-            StatusReg.setCarryFlag((RAM.getRam(f)) & 1);
-            RAM.setRam(RAM.getRam(f) << 1, f);
-            modifyBit(RAM.getRam(f), 0, temp);
+            RAM.setRam((RAM.getRam(f) << 1) + temp, f);
         }
     }
 
     public static void RRF(int f, int d) {
         // int temp = RAM.getCarryFlag();
         int temp = StatusReg.getCarryFlag();
+        int temp1 = ((RAM.getRam(f) & 0b1));
+        StatusReg.setCarryFlag(temp1);
         if (d == 0) {
-            // RAM.setCarryFLag((RAM.getRam(f))&1);
-            StatusReg.setCarryFlag((RAM.getRam(f)) & 1);
-            W_Register.setValue(RAM.getRam(f) >> 1);
-            modifyBit(W_Register.getValue(), 7, temp);
+            W_Register.setValue((RAM.getRam(f) >> 1) + (temp << 6));
         } else {
-            // RAM.setCarryFLag((RAM.getRam(f))&1);
-            StatusReg.setCarryFlag((RAM.getRam(f)) & 1);
-            RAM.setRam(RAM.getRam(f) >> 1, f);
-            modifyBit(RAM.getRam(f), 7, temp);
+            RAM.setRam((RAM.getRam(f) >> 1) + (temp << 6), f);
         }
     }
 
     public static void SUBWF(int f, int d) {
+        if ((RAM.getRam(f) - W_Register.getValue()) >= 0) {
+            StatusReg.setCarryFlag(1);
+        } else {
+            StatusReg.setCarryFlag(0);
+        }
         if (d == 0) {
             W_Register.setValue((RAM.getRam(f) - W_Register.getValue()));
             if (W_Register.getValue() == 0) {
                 StatusReg.setZeroFlag(1);
+            } else {
+                StatusReg.setZeroFlag(0);
             }
         } else {
             RAM.setRam((RAM.getRam(f) - W_Register.getValue()), f);
             if (RAM.getRam(f) == 0) {
                 StatusReg.setZeroFlag(1);
+            } else {
+                StatusReg.setZeroFlag(0);
             }
         }
     }
@@ -454,11 +489,15 @@ public class InstructionDecoder {
             W_Register.setValue(RAM.getRam(f) ^ W_Register.getValue());
             if (W_Register.getValue() == 0) {
                 StatusReg.setZeroFlag(1);
+            } else {
+                StatusReg.setZeroFlag(0);
             }
         } else {
             RAM.setRam(RAM.getRam(f) ^ W_Register.getValue(), f);
             if (RAM.getRam(f) == 0) {
                 StatusReg.setZeroFlag(1);
+            } else {
+                StatusReg.setZeroFlag(0);
             }
         }
     }
@@ -488,9 +527,16 @@ public class InstructionDecoder {
     // LITERAL AND CONTROL
     // OPERATIONS-------------------------------------------------------------------
     public static void ADDLW(int k) {
+        if (W_Register.getValue() + k < 0 || W_Register.getValue() + k > 255) {
+            StatusReg.setCarryFlag(1);
+        } else {
+            StatusReg.setCarryFlag(0);
+        }
         W_Register.setValue(W_Register.getValue() + k);
         if (W_Register.getValue() == 0) {
             StatusReg.setZeroFlag(1);
+        } else {
+            StatusReg.setZeroFlag(0);
         }
         return;
     }
@@ -499,6 +545,8 @@ public class InstructionDecoder {
         W_Register.setValue(W_Register.getValue() & k);
         if (W_Register.getValue() == 0) {
             StatusReg.setZeroFlag(1);
+        } else {
+            StatusReg.setZeroFlag(0);
         }
         return;
     }
@@ -559,13 +607,25 @@ public class InstructionDecoder {
     }
 
     public static void SUBLW(int k) {
+        if (k - W_Register.getValue() >= 0) {
+            StatusReg.setCarryFlag(1);
+        } else {
+            StatusReg.setCarryFlag(0);
+        }
         W_Register.setValue(k - W_Register.getValue());
+        if (W_Register.getValue() == 0) {
+            StatusReg.setZeroFlag(1);
+        } else {
+            StatusReg.setZeroFlag(0);
+        }
     }
 
     public static void XORLW(int k) {
         W_Register.setValue(W_Register.getValue() ^ k);
         if (W_Register.getValue() == 0) {
             StatusReg.setZeroFlag(1);
+        } else {
+            StatusReg.setZeroFlag(0);
         }
     }
 

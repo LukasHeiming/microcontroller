@@ -16,6 +16,22 @@ public class Flash {
     static int commandAmount = 0;
 
     public static String readFile(String fileName) {
+        //reset vars
+        for(int i = 0; i < 1024; i++){
+            flash[i] = "";
+        }
+        listMatches.clear();
+        for(int i = 0; i < 100; i++){
+            firstCommandLine[i] = 0;
+        }
+        for(int i = 0; i < 8; i++){
+            for(int j = 0; j < 2; j++){
+                jumpMarksAndLines[i][j] = "";
+                callMarksAndLines[i][j] = "";
+            }
+        }
+        commandAmount = 0;
+
         System.out.println("Entered readFile");
         listMatches.clear();
         String sProgram = "";

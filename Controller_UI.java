@@ -1012,6 +1012,7 @@ public class Controller_UI {
 				/* Abfrage, ob auf "Öffnen" geklickt wurde */
 				if (ret == JFileChooser.APPROVE_OPTION) {
 					// Ausgabe der ausgewaehlten Datei
+					textArea_Panel_ProgrammLSTDatei.setText(null);
 					String sProgram = Flash.readFile(chooser.getSelectedFile().getName());
 					textArea_Panel_ProgrammLSTDatei.insert(sProgram, 0);
 					try {
