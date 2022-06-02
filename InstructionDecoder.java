@@ -6,13 +6,36 @@ public class InstructionDecoder {
 
     public static void decode(String instruction) {
         int paraInt = 0;
+        int para2Int = 0;
         boolean paraDone = false;
+        String parameter2 = "";
         instructionToDecode = instruction;
         int index = instructionToDecode.indexOf(" ");
         String parameter = instructionToDecode.substring(index + 1, instructionToDecode.length());
+
+        if(parameter.indexOf(",") != -1){
+            parameter2 = parameter.substring(parameter.indexOf(",") + 1, parameter.length());
+            parameter = parameter.substring(0, parameter.indexOf(","));
+        }
+
+        
+        for(int i = 0; i < Flash.equValues.length; i++){
+            if(parameter.equals(Flash.equValues[i][0])){
+                parameter = Flash.equValues[i][1];
+            }
+        }
+        if(parameter2 != ""){
+            for(int i = 0; i < Flash.equValues.length; i++){
+                if(parameter2.equals(Flash.equValues[i][0])){
+                    parameter2 = Flash.equValues[i][1];
+                }
+            }
+        }
+
         if (parameter.charAt(parameter.length() - 1) == 'h') {
             parameter = parameter.substring(0, parameter.length() - 1);
         }
+
         switch (parameter.charAt(0)) {
             case ('0'):
             case ('1'):
@@ -43,6 +66,9 @@ public class InstructionDecoder {
 
         System.out.println("Aktueller Befehl: " + instructionToDecode);
         System.out.println("Aktueller Parameter: " + parameter);
+        if(parameter2 != ""){
+            System.out.println("Aktueller Parameter2: " + parameter2);
+        }
 
         for (int i = 0; i < Flash.callMarksAndLines.length; i++) {
             if (parameter.equals(Flash.callMarksAndLines[i][0])) {
@@ -67,17 +93,20 @@ public class InstructionDecoder {
             if (parameter.matches("[0][x][0-9A-F]*")) {
                 paraInt = Integer.decode(parameter);
             }
+            if (parameter2.matches("[0][x][0-9A-F]*")) {
+                para2Int = Integer.decode(parameter);
+            }
         }
 
         switch (instructionToDecode) {
             case "ADDWF":
                 // todo
-                ADDWF(0, 0);
+                ADDWF(paraInt, para2Int);
                 break;
 
             case "ANDWF":
                 // todo
-                ANDWF(0, 0);
+                ANDWF(paraInt, para2Int);
                 break;
 
             case "CLRF":
@@ -90,27 +119,27 @@ public class InstructionDecoder {
 
             case "COMF":
                 // todo
-                COMF(0, 0);
+                COMF(paraInt, para2Int);
                 break;
 
             case "DECF":
                 // todo
-                DECF(0, 0);
+                DECF(paraInt, para2Int);
                 break;
 
             case "DECFSZ":
                 // todo
-                DECFZS(0, 0);
+                DECFZS(paraInt, para2Int);
                 break;
 
             case "INCF":
                 // todo
-                INCF(0, 0);
+                INCF(paraInt, para2Int);
                 break;
 
             case "INCFSZ":
                 // todo
-                INCFSZ(0, 0);
+                INCFSZ(paraInt, para2Int);
                 break;
 
             case "IORWF":
@@ -122,12 +151,12 @@ public class InstructionDecoder {
 
             case "MOVF":
                 // todo
-                MOVF(0, 0);
+                MOVF(paraInt, para2Int);
                 break;
 
             case "MOVWF":
                 // todo
-                MOVWF(0);
+                MOVWF(paraInt);
                 break;
 
             case "NOP":
@@ -136,46 +165,46 @@ public class InstructionDecoder {
 
             case "RLF":
                 // todo
-                RLF(0, 0);
+                RLF(paraInt, para2Int);
                 break;
 
             case "RRF":
                 // todo
-                RRF(0, 0);
+                RRF(paraInt, para2Int);
                 break;
 
             case "SUBWF":
                 // todo
-                SUBWF(0, 0);
+                SUBWF(paraInt, para2Int);
                 break;
 
             case "SWAPF":
                 // todo
-                SWAPF(0, 0);
+                SWAPF(paraInt, para2Int);
                 break;
 
             case "XORWF":
                 // todo
-                XORWF(0, 0);
+                XORWF(paraInt, para2Int);
                 break;
 
             case "BCF":
                 // todo
-                BCF(0, 0);
+                BCF(paraInt, para2Int);
                 break;
 
             case "BSF":
-                BSF(0, 0);
+                BSF(paraInt, para2Int);
                 break;
 
             case "BTFSC":
                 // todo
-                BTFSC(0, 0);
+                BTFSC(paraInt, para2Int);
                 break;
 
             case "BTFSS":
                 // todo
-                BTFSS(0, 0);
+                BTFSS(paraInt, para2Int);
                 break;
 
             case "ADDLW":

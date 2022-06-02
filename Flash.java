@@ -13,6 +13,7 @@ public class Flash {
     static int[] firstCommandLine = new int[100];
     static String[][] jumpMarksAndLines = new String[8][2];
     static String[][] callMarksAndLines = new String[8][2];
+    static String[][] equValues = new String[42][2];
     static int commandAmount = 0;
 
     public static String readFile(String fileName) {
@@ -30,6 +31,11 @@ public class Flash {
                 callMarksAndLines[i][j] = "";
             }
         }
+        for(int i = 0; i < 42; i++){
+            for(int j = 0; j < 2; j++){
+                equValues[i][j] = "";
+            }
+        }
         commandAmount = 0;
 
         System.out.println("Entered readFile");
@@ -39,6 +45,7 @@ public class Flash {
         int linecounter = 0;
         int jumpMarksCounter = 0;
         int callMarksCounter = 0;
+        int equCounter = 0;
         System.out.println("before fileName creation");
         fileName = "./TestFiles/" + fileName;
         System.out.println(fileName);
@@ -78,6 +85,23 @@ public class Flash {
                         System.out.println("callMarksAndLines[" + callMarksCounter + "][1]: " + (commandAmount - 1));
                         callMarksCounter++;
                     }
+                    if (line.matches(".*[0-9A-Za-z]*[ ]*equ[ ]*[0-9A-Za-z]*.*") == true ) {
+                        String equ = line;
+                        String equName = "";
+                        String equValue = "";
+                        if(equ.indexOf(";") != -1){
+                            equ = equ.substring(equ.indexOf("0") + 5, equ.indexOf(";"));
+                        }else{
+                            equ = equ.substring(equ.indexOf("0") + 5, equ.length());
+                        }
+                        equName = equ.substring(0, equ.indexOf("equ")).replaceAll("[ ]", "");
+                        equValue = equ.substring(equ.indexOf("equ") + 3, equ.length()).replaceAll("[ ]", "");
+                        equValues[equCounter][0] = equName;
+                        equValues[equCounter][1] = equValue;
+                        System.out.println("equName: " + equName);
+                        System.out.println("equValue: " + equValue);
+                        equCounter++;
+                    }
 
                 sProgram = sProgram + line + "\n";
                 linecounter++;
@@ -96,7 +120,7 @@ public class Flash {
         int index = sProgram.indexOf("org 0");
         sProgramEdited = sProgram.substring(index + 5, sProgram.length() - 1);
         sProgramEdited = sProgramEdited.replaceAll("[;].*", "");
-        Pattern p = Pattern.compile("([a-zA-Z]+[ ][0-9a-zA-z,]+)|return|nop|clrw|clrwdt|sleep|retfie");
+        Pattern p = Pattern.compile("([a-z]+[ ][0-9a-z,]+)|return|nop|clrw|clrwdt|sleep|retfie");
         Matcher m = p.matcher(sProgramEdited);
         while (m.find()) {
             listMatches.add(m.group());
@@ -107,13 +131,14 @@ public class Flash {
         // sProgramEdited = sProgramEdited.replaceAll("device 16F84", "");
         // sProgramEdited = sProgramEdited.replaceAll("org 0", "");
         // System.out.println("edited:" + sProgramEdited);
-        for (String i : listMatches) {
-            System.out.println(i);
-        }
+
+        //for (String i : listMatches) {
+        //    System.out.println("listMatches: " + i);
+        //}
         System.out.println("Commands:");
         for (int i = 0; i < listMatches.size(); i++) {
             flash[i] = listMatches.get(i);
-            System.out.println(flash[i]);
+            System.out.println("flash[" + i + "]: " + flash[i]);
         }
         System.out.println("Commands end.");
         return sProgram;
