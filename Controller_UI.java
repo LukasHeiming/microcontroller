@@ -241,7 +241,7 @@ public class Controller_UI {
 	/**
 	 * Initialize the contents of the frame.
 	 */
-	//@SuppressWarnings("deprecation")
+	// @SuppressWarnings("deprecation")
 	private void initialize() {
 		frmPicfSimulator = new JFrame();
 		frmPicfSimulator.setTitle("PIC16F84 Simulator");
@@ -734,6 +734,7 @@ public class Controller_UI {
 		scrollPane.setViewportView(table_Panel_Fileregister_SFR_GPR);
 		table_Panel_Fileregister_SFR_GPR.setBorder(new LineBorder(Color.BLACK));
 		table_Panel_Fileregister_SFR_GPR.setBackground(Color.WHITE);
+		table_Panel_Fileregister_SFR_GPR.setEnabled(false);
 
 		// JPanel panel_3 = new JPanel();
 		panel_3.setBorder(new TitledBorder(null, "Port A", TitledBorder.LEADING, TitledBorder.TOP, null, null));
@@ -973,10 +974,10 @@ public class Controller_UI {
 										.getLineEndOffset(Flash.firstCommandLine[PC.programCounter]),
 								painter);
 
-						//if (PC.programCounter > 0) {
-							textArea_Panel_ProgrammLSTDatei.getHighlighter().removeAllHighlights();
+						// if (PC.programCounter > 0) {
+						textArea_Panel_ProgrammLSTDatei.getHighlighter().removeAllHighlights();
 
-						//}
+						// }
 						textArea_Panel_ProgrammLSTDatei.getHighlighter().addHighlight(
 								textArea_Panel_ProgrammLSTDatei
 										.getLineStartOffset(Flash.firstCommandLine[PC.programCounter]),
@@ -1120,6 +1121,27 @@ public class Controller_UI {
 		checkbox_PortB_Pin_Value0.setSelected(Port_RB.getPort_RB(0));
 
 		// table_Panel_Fileregister_SFR_GPR
+		for (int i = 0; i < 32; i++) {			
+			for (int j = 0; j < 8; j++) {
+				int value = 0;
+				if(i*8+j > 127)
+				{
+					StatusReg.setRP0(1);
+					value = RAM.getRam((i*8) + j - 128);
+				}
+				else{
+					StatusReg.setRP0(0);
+					value = RAM.getRam((i*8) + j);
+				}
+				if (value == -1) {
+					table_Panel_Fileregister_SFR_GPR.setValueAt("x", i, j+1);
+				} else {
+					table_Panel_Fileregister_SFR_GPR.setValueAt(value, i, j+1);
 
+				}
+			}
+
+		}
+		StatusReg.setRP0(0);
 	}
 }

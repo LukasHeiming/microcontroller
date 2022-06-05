@@ -2,7 +2,7 @@
 public class W_Register {
     
     private static int value;
-    private static int mask = 0b1111111;
+    private static int mask = 0b11111111;
 
     public static int getValue()
     {

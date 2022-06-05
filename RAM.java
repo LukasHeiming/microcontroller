@@ -5,11 +5,14 @@ public class RAM {
     
     private static int[] ram = new int[256];//12 - 79  140-207  SFR: 0 - 11  128 - 139
     private static int mask = 0b11111111;
-    
+    public static int[] ramUsage = new int[256];
+    //Bank 0: 0 - 79
+    //Bank 1: 128-207
+    //80 - 127 gibts nich
 
     public static int getRam(int index)
     {
-        if(index >= 12 && index <= 79)
+        if(index >= 0 && index <= 79)
         {
             if(StatusReg.getRP0() == 0 && StatusReg.getRP1() == 0  || StatusReg.getRP0() == 0 && StatusReg.getRP1() == 1)
             {
@@ -23,19 +26,24 @@ public class RAM {
         return -1;
     }
 
-    public static void setRam(int value, int index)
+    public static int setRam(int value, int index)
     {
         if(index >= 12 && index <= 79)
         {
             if(StatusReg.getRP0() == 0 && StatusReg.getRP1() == 0  || StatusReg.getRP0() == 0 && StatusReg.getRP1() == 1)
             {
-                ram[index] = value & mask;
+                    ram[index] = value & mask;
+                    ramUsage[index] = 1;
+                    return 1;
             }
             else if(StatusReg.getRP0() == 1 && StatusReg.getRP1() == 0 || StatusReg.getRP0() == 1 && StatusReg.getRP1() == 1)
             {
-                ram[index+128] = value & mask;
+                    ram[index+128] = value & mask;
+                    ramUsage[index+128] = 1;
+                    return 1;
             }
         }
+        return -1;
     }
 
     public static int getRamHex(int index)

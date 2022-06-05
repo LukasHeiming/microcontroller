@@ -17,22 +17,37 @@ public class Flash {
     static int commandAmount = 0;
 
     public static String readFile(String fileName) {
-        //reset vars
-        for(int i = 0; i < 1024; i++){
+        // reset vars
+
+        for (int i = 0; i < 256; i++) {
+            if (i >= 0 && i <= 11 || i >= 128 && i <= 139) {
+                RAM.ramUsage[i] = 1;
+            }
+
+            if (i > 11 && i <= 79 || i >= 140 && i <= 207) {
+                RAM.ramUsage[i] = 0;
+            }
+
+            if (i >= 80 && i <= 127 || i >= 208 && i <= 255) {
+                RAM.ramUsage[i] = -1;
+            }
+        }
+
+        for (int i = 0; i < 1024; i++) {
             flash[i] = "";
         }
         listMatches.clear();
-        for(int i = 0; i < 100; i++){
+        for (int i = 0; i < 100; i++) {
             firstCommandLine[i] = 0;
         }
-        for(int i = 0; i < 8; i++){
-            for(int j = 0; j < 2; j++){
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 2; j++) {
                 jumpMarksAndLines[i][j] = "";
                 callMarksAndLines[i][j] = "";
             }
         }
-        for(int i = 0; i < 42; i++){
-            for(int j = 0; j < 2; j++){
+        for (int i = 0; i < 42; i++) {
+            for (int j = 0; j < 2; j++) {
                 equValues[i][j] = "";
             }
         }
@@ -61,47 +76,65 @@ public class Flash {
             String line = null;
             while ((line = in.readLine()) != null) {
                 System.out.println("Gelesene Zeile: " + line);
-                    if (line.charAt(0) == '0') {
-                        firstCommandLine[commandAmount] = linecounter;
-                        //System.out.println("firstCommandLine: " + firstCommandLine[commandAmount]);
-                        commandAmount++;
+                if (line.charAt(0) == '0') {
+                    firstCommandLine[commandAmount] = linecounter;
+                    // System.out.println("firstCommandLine: " + firstCommandLine[commandAmount]);
+                    commandAmount++;
+                }
+                // jumpmarken abspeichern (goto) oder unterprugramm rücksprungmarken mit
+                // nächstem befehl in der nächsten zeile
+                if (line.matches("^[ ]+[0-9]+[ ]+ [A-Za-z]+[ ][ ]+") == true) {
+                    String jumpmark = line.replace(" ", "");
+                    jumpmark = jumpmark.substring(5);
+                    jumpMarksAndLines[jumpMarksCounter][0] = jumpmark;
+                    jumpMarksAndLines[jumpMarksCounter][1] = Integer.toString(commandAmount);
+                    System.out.println("jumpMarksAndLines[" + jumpMarksCounter + "][1]: " + commandAmount);
+                    jumpMarksCounter++;
+                }
+                // unterprugramm rücksprungmarken abspeichern (call), nächster befehl in
+                // gleicher zeile
+                if (line.matches(
+                        "^[A-F0-9][A-F0-9][A-F0-9][A-F0-9][ ][A-F0-9][A-F0-9][A-F0-9][A-F0-9][ ]*[0-9]+[ ][ ][A-Za-z0-9]+.*") == true) {
+                    String callmark = line;
+                    callmark = callmark.substring(27);
+                    callmark = callmark.substring(0, callmark.indexOf(" "));
+                    callMarksAndLines[callMarksCounter][0] = callmark;
+                    callMarksAndLines[callMarksCounter][1] = Integer.toString(commandAmount - 1);
+                    System.out.println("callMarksAndLines[" + callMarksCounter + "][1]: " + (commandAmount - 1));
+                    callMarksCounter++;
+                }
+                if (line.matches(".*[0-9A-Za-z]*[ ]*equ[ ]*[0-9A-Za-z]*.*") == true) {
+                    String equ = line;
+                    String equName = "";
+                    String equValue = "";
+                    String equAdress = "";
+                    if (equ.indexOf(";") != -1) {
+                        equ = equ.substring(equ.indexOf("0") + 5, equ.indexOf(";"));
+                    } else {
+                        equ = equ.substring(equ.indexOf("0") + 5, equ.length());
                     }
-                    //jumpmarken abspeichern (goto) oder unterprugramm rücksprungmarken mit nächstem befehl in der nächsten zeile
-                    if (line.matches("^[ ]+[0-9]+[ ]+ [A-Za-z]+[ ][ ]+") == true) {
-                        String jumpmark = line.replace(" ", "");
-                        jumpmark = jumpmark.substring(5);
-                        jumpMarksAndLines[jumpMarksCounter][0] = jumpmark;
-                        jumpMarksAndLines[jumpMarksCounter][1] = Integer.toString(commandAmount);
-                        System.out.println("jumpMarksAndLines[" + jumpMarksCounter + "][1]: " + commandAmount);
-                        jumpMarksCounter++;
-                    }
-                    //unterprugramm rücksprungmarken abspeichern (call), nächster befehl in gleicher zeile
-                    if (line.matches("^[A-F0-9][A-F0-9][A-F0-9][A-F0-9][ ][A-F0-9][A-F0-9][A-F0-9][A-F0-9][ ]*[0-9]+[ ][ ][A-Za-z0-9]+.*") == true ) {
-                        String callmark = line;
-                        callmark = callmark.substring(27);
-                        callmark = callmark.substring(0, callmark.indexOf(" "));
-                        callMarksAndLines[callMarksCounter][0] = callmark;
-                        callMarksAndLines[callMarksCounter][1] = Integer.toString(commandAmount - 1);
-                        System.out.println("callMarksAndLines[" + callMarksCounter + "][1]: " + (commandAmount - 1));
-                        callMarksCounter++;
-                    }
-                    if (line.matches(".*[0-9A-Za-z]*[ ]*equ[ ]*[0-9A-Za-z]*.*") == true ) {
-                        String equ = line;
-                        String equName = "";
-                        String equValue = "";
-                        if(equ.indexOf(";") != -1){
-                            equ = equ.substring(equ.indexOf("0") + 5, equ.indexOf(";"));
-                        }else{
-                            equ = equ.substring(equ.indexOf("0") + 5, equ.length());
+                    equName = equ.substring(0, equ.indexOf("equ")).replaceAll("[ ]", "");
+                    equValue = equ.substring(equ.indexOf("equ") + 3, equ.length()).replaceAll("[ ]", "");
+                    equValue = equValue.replaceAll("h", "");
+                    System.out.println("equValue: " + equValue);
+                    equValues[equCounter][0] = equName;
+                    // equ abspeichern
+                    for (int i = 0; i < 256; i++) {
+                        if (RAM.ramUsage[i] == 0) {
+                            if (RAM.ramUsage[i] > 79) {
+                                StatusReg.setRP0(1);
+                            } else {
+                                StatusReg.setRP0(0);
+                            }
+                            RAM.setRam(Integer.parseInt(equValue, 16), i);
+                            equValues[equCounter][1] = Integer.toString(i);
+                            break;
                         }
-                        equName = equ.substring(0, equ.indexOf("equ")).replaceAll("[ ]", "");
-                        equValue = equ.substring(equ.indexOf("equ") + 3, equ.length()).replaceAll("[ ]", "");
-                        equValues[equCounter][0] = equName;
-                        equValues[equCounter][1] = equValue;
-                        System.out.println("equName: " + equName);
-                        System.out.println("equValue: " + equValue);
-                        equCounter++;
                     }
+                    System.out.println("equName: " + equName);
+                    System.out.println("equValue: " + equValue);
+                    equCounter++;
+                }
 
                 sProgram = sProgram + line + "\n";
                 linecounter++;
@@ -132,9 +165,9 @@ public class Flash {
         // sProgramEdited = sProgramEdited.replaceAll("org 0", "");
         // System.out.println("edited:" + sProgramEdited);
 
-        //for (String i : listMatches) {
-        //    System.out.println("listMatches: " + i);
-        //}
+        // for (String i : listMatches) {
+        // System.out.println("listMatches: " + i);
+        // }
         System.out.println("Commands:");
         for (int i = 0; i < listMatches.size(); i++) {
             flash[i] = listMatches.get(i);

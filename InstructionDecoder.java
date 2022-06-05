@@ -13,21 +13,31 @@ public class InstructionDecoder {
         int index = instructionToDecode.indexOf(" ");
         String parameter = instructionToDecode.substring(index + 1, instructionToDecode.length());
 
-        if(parameter.indexOf(",") != -1){
+        if (parameter.indexOf(",") != -1) {
             parameter2 = parameter.substring(parameter.indexOf(",") + 1, parameter.length());
             parameter = parameter.substring(0, parameter.indexOf(","));
         }
 
-        
-        for(int i = 0; i < Flash.equValues.length; i++){
-            if(parameter.equals(Flash.equValues[i][0])){
-                parameter = Flash.equValues[i][1];
+        for (int i = 0; i < Flash.equValues.length; i++) {
+            if (parameter.equals(Flash.equValues[i][0])) {
+                parameter = Integer.toString(Integer.parseInt(Flash.equValues[i][1]));
+                parameter = Integer.toHexString(Integer.parseInt(parameter));
+                parameter = parameter.toUpperCase();
+                if (parameter.length() == 1) {
+                    parameter = "0" + parameter;
+                }
+                System.out.println("parameter after getting equ from RAM: " + parameter);
             }
         }
-        if(parameter2 != ""){
-            for(int i = 0; i < Flash.equValues.length; i++){
-                if(parameter2.equals(Flash.equValues[i][0])){
-                    parameter2 = Flash.equValues[i][1];
+        if (parameter2 != "") {
+            for (int i = 0; i < Flash.equValues.length; i++) {
+                if (parameter2.equals(Flash.equValues[i][0])) {
+                    parameter2 = Integer.toString(Integer.parseInt(Flash.equValues[i][1]));
+                    parameter2 = Integer.toHexString(Integer.parseInt(parameter2));
+                    parameter2 = parameter2.toUpperCase();
+                    if (parameter2.length() == 1) {
+                        parameter2 = "0" + parameter2;
+                    }
                 }
             }
         }
@@ -54,6 +64,26 @@ public class InstructionDecoder {
                 break;
         }
 
+        if (parameter2 != "") {
+            switch (parameter2.charAt(0)) {
+                case ('0'):
+                case ('1'):
+                case ('2'):
+                case ('3'):
+                case ('4'):
+                case ('5'):
+                case ('6'):
+                case ('7'):
+                case ('8'):
+                case ('9'):
+                    parameter2 = "0x" + parameter2;
+                    break;
+                default:
+
+                    break;
+            }
+        }
+
         if (index != -1) {
             instructionToDecode = instructionToDecode.substring(0, index);
         }
@@ -66,7 +96,7 @@ public class InstructionDecoder {
 
         System.out.println("Aktueller Befehl: " + instructionToDecode);
         System.out.println("Aktueller Parameter: " + parameter);
-        if(parameter2 != ""){
+        if (parameter2 != "") {
             System.out.println("Aktueller Parameter2: " + parameter2);
         }
 
@@ -95,17 +125,32 @@ public class InstructionDecoder {
             }
             if (parameter2.matches("[0][x][0-9A-F]*")) {
                 para2Int = Integer.decode(parameter);
+            } else {
+                if (parameter2.equals("w")) {
+                    para2Int = W_Register.getValue();
+                } else {
+                    para2Int = 1;
+                }
             }
         }
+
+        System.out.println("Aktueller paraInt: " + paraInt);
+        System.out.println("Aktueller para2Int: " + para2Int);
 
         switch (instructionToDecode) {
             case "ADDWF":
                 // todo
+                if (para2Int == W_Register.getValue()) {
+                    para2Int = 0;
+                }
                 ADDWF(paraInt, para2Int);
                 break;
 
             case "ANDWF":
                 // todo
+                if (para2Int == W_Register.getValue()) {
+                    para2Int = 0;
+                }
                 ANDWF(paraInt, para2Int);
                 break;
 
@@ -119,38 +164,57 @@ public class InstructionDecoder {
 
             case "COMF":
                 // todo
+                if (para2Int == W_Register.getValue()) {
+                    para2Int = 0;
+                }
                 COMF(paraInt, para2Int);
                 break;
 
             case "DECF":
                 // todo
+                if (para2Int == W_Register.getValue()) {
+                    para2Int = 0;
+                }
                 DECF(paraInt, para2Int);
                 break;
 
             case "DECFSZ":
                 // todo
+                if (para2Int == W_Register.getValue()) {
+                    para2Int = 0;
+                }
                 DECFZS(paraInt, para2Int);
                 break;
 
             case "INCF":
                 // todo
+                if (para2Int == W_Register.getValue()) {
+                    para2Int = 0;
+                }
                 INCF(paraInt, para2Int);
                 break;
 
             case "INCFSZ":
                 // todo
+                if (para2Int == W_Register.getValue()) {
+                    para2Int = 0;
+                }
                 INCFSZ(paraInt, para2Int);
                 break;
 
             case "IORWF":
                 // todo
-                /*
-                 * IORWF(0, 0);
-                 */
+                if (para2Int == W_Register.getValue()) {
+                    para2Int = 0;
+                }
+                IORWF(paraInt, para2Int);
                 break;
 
             case "MOVF":
                 // todo
+                if (para2Int == W_Register.getValue()) {
+                    para2Int = 0;
+                }
                 MOVF(paraInt, para2Int);
                 break;
 
@@ -165,45 +229,72 @@ public class InstructionDecoder {
 
             case "RLF":
                 // todo
+                if (para2Int == W_Register.getValue()) {
+                    para2Int = 0;
+                }
                 RLF(paraInt, para2Int);
                 break;
 
             case "RRF":
                 // todo
+                if (para2Int == W_Register.getValue()) {
+                    para2Int = 0;
+                }
                 RRF(paraInt, para2Int);
                 break;
 
             case "SUBWF":
                 // todo
+                if (para2Int == W_Register.getValue()) {
+                    para2Int = 0;
+                }
                 SUBWF(paraInt, para2Int);
                 break;
 
             case "SWAPF":
                 // todo
+                if (para2Int == W_Register.getValue()) {
+                    para2Int = 0;
+                }
                 SWAPF(paraInt, para2Int);
                 break;
 
             case "XORWF":
                 // todo
+                if (para2Int == W_Register.getValue()) {
+                    para2Int = 0;
+                }
                 XORWF(paraInt, para2Int);
                 break;
 
             case "BCF":
                 // todo
+                if (para2Int == W_Register.getValue()) {
+                    para2Int = 0;
+                }
                 BCF(paraInt, para2Int);
                 break;
 
             case "BSF":
+                if (para2Int == W_Register.getValue()) {
+                    para2Int = 0;
+                }
                 BSF(paraInt, para2Int);
                 break;
 
             case "BTFSC":
                 // todo
+                if (para2Int == W_Register.getValue()) {
+                    para2Int = 0;
+                }
                 BTFSC(paraInt, para2Int);
                 break;
 
             case "BTFSS":
                 // todo
+                if (para2Int == W_Register.getValue()) {
+                    para2Int = 0;
+                }
                 BTFSS(paraInt, para2Int);
                 break;
 
@@ -328,14 +419,15 @@ public class InstructionDecoder {
 
     public static void COMF(int f, int d) {
         if (d == 0) {
-            W_Register.setValue(RAM.getRam(f) ^ 0b11111111);
+            System.out.println("Ergebnis: " + (255 - RAM.getRam(f)));
+            W_Register.setValue(255 - RAM.getRam(f));
             if (W_Register.getValue() == 0) {
                 StatusReg.setZeroFlag(1);
             } else {
                 StatusReg.setZeroFlag(0);
             }
         } else {
-            RAM.setRam(RAM.getRam(f) ^ 0b11111111, f);
+            RAM.setRam(255 - RAM.getRam(f), f);
             if (RAM.getRam(f) == 0) {
                 StatusReg.setZeroFlag(1);
             } else {
@@ -413,21 +505,19 @@ public class InstructionDecoder {
         return;
     }
 
-    /*
-     * public static void IORWF(int f, int d) {
-     * if (d == 0) {
-     * W_Register.setValue(RAM.getRam(f) | W_Register.getValue());
-     * if (W_Register.getValue() == 0) {
-     * StatusReg.setZeroFlag(1);
-     * }
-     * } else {
-     * RAM.setRam(RAM.getRam(f) | W_Register.getValue(), f);
-     * if (RAM.getRam(f) == 0) {
-     * StatusReg.setZeroFlag(1);
-     * }
-     * }
-     * }
-     */
+    public static void IORWF(int f, int d) {
+        if (d == 0) {
+            W_Register.setValue(RAM.getRam(f) | W_Register.getValue());
+            if (W_Register.getValue() == 0) {
+                StatusReg.setZeroFlag(1);
+            }
+        } else {
+            RAM.setRam(RAM.getRam(f) | W_Register.getValue(), f);
+            if (RAM.getRam(f) == 0) {
+                StatusReg.setZeroFlag(1);
+            }
+        }
+    }
 
     public static void MOVF(int f, int d) {
         if (d == 0) {
@@ -450,7 +540,9 @@ public class InstructionDecoder {
     }
 
     public static void MOVWF(int f) {
-        RAM.setRam(W_Register.getValue(), f);
+        System.out.println("Wert von f:" + f);
+        System.out.println("W: " + W_Register.getValue());
+        System.out.println(RAM.setRam(W_Register.getValue(), f));
         return;
     }
 
