@@ -116,7 +116,6 @@ public class Flash {
                     equName = equ.substring(0, equ.indexOf("equ")).replaceAll("[ ]", "");
                     equValue = equ.substring(equ.indexOf("equ") + 3, equ.length()).replaceAll("[ ]", "");
                     equValue = equValue.replaceAll("h", "");
-                    System.out.println("equValue: " + equValue);
                     equValues[equCounter][0] = equName;
                     // equ abspeichern
                     for (int i = 0; i < 256; i++) {
@@ -133,6 +132,7 @@ public class Flash {
                     }
                     System.out.println("equName: " + equName);
                     System.out.println("equValue: " + equValue);
+                    System.out.println("equAddress: " + equValues[equCounter][1]);
                     equCounter++;
                 }
 

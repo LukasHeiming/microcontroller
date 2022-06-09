@@ -21,6 +21,8 @@ public class InstructionDecoder {
         for (int i = 0; i < Flash.equValues.length; i++) {
             if (parameter.equals(Flash.equValues[i][0])) {
                 parameter = Integer.toString(Integer.parseInt(Flash.equValues[i][1]));
+                System.out.println("Equ Address: " + Flash.equValues[i][1]);
+
                 parameter = Integer.toHexString(Integer.parseInt(parameter));
                 parameter = parameter.toUpperCase();
                 if (parameter.length() == 1) {
@@ -363,7 +365,11 @@ public class InstructionDecoder {
         } else {
             StatusReg.setCarryFlag(0);
         }
+
+        figureOutDCFlag(RAM.getRam(f), true);
+        
         if (d == 0) {
+            System.out.println("W Register: " + W_Register.getValue() + " + RAM: " + RAM.getRam((f)) );
             W_Register.setValue(W_Register.getValue() + RAM.getRam(f));
             if (W_Register.getValue() == 0) {
                 StatusReg.setZeroFlag(1);
@@ -580,6 +586,9 @@ public class InstructionDecoder {
         } else {
             StatusReg.setCarryFlag(0);
         }
+
+        figureOutDCFlag(RAM.getRam(f), false);
+
         if (d == 0) {
             W_Register.setValue((RAM.getRam(f) - W_Register.getValue()));
             if (W_Register.getValue() == 0) {
@@ -653,6 +662,9 @@ public class InstructionDecoder {
         } else {
             StatusReg.setCarryFlag(0);
         }
+
+        figureOutDCFlag(RAM.getRam(k), true);
+
         W_Register.setValue(W_Register.getValue() + k);
         if (W_Register.getValue() == 0) {
             StatusReg.setZeroFlag(1);
@@ -733,6 +745,9 @@ public class InstructionDecoder {
         } else {
             StatusReg.setCarryFlag(0);
         }
+
+        figureOutDCFlag(RAM.getRam(k), false);
+
         W_Register.setValue(k - W_Register.getValue());
         if (W_Register.getValue() == 0) {
             StatusReg.setZeroFlag(1);
@@ -755,4 +770,97 @@ public class InstructionDecoder {
         int mask = 1 << p;
         return (n & ~mask) | ((b << p) & mask);
     }
+
+    static void figureOutDCFlag(int f, boolean addition){
+        String binaryNumber1 = "";
+        binaryNumber1 = Integer.toBinaryString(f);
+        String binaryNumber2 = "";
+        binaryNumber2 = Integer.toBinaryString(W_Register.getValue());
+
+        while(binaryNumber1.length() < 4){
+            binaryNumber1 = "0" + binaryNumber1;
+        }
+
+        while(binaryNumber1.length() > 4){
+            binaryNumber1 = binaryNumber1.substring(1, binaryNumber1.length());
+        }
+
+        while(binaryNumber2.length() < 4){
+            binaryNumber2 = "0" + binaryNumber2;
+        }
+
+        while(binaryNumber2.length() > 4){
+            binaryNumber2 = binaryNumber2.substring(1, binaryNumber2.length());
+        }
+
+        System.out.println("binaryNumber1 (only last 4 Bits) - Integer.toBinaryString(" + f + "): " + binaryNumber1);
+        System.out.println("binaryNumber2 (only last 4 Bits) - Integer.toBinaryString(" + W_Register.getValue() + "): " + binaryNumber2);
+
+        if(binaryNumber1.charAt(0) == '1' && binaryNumber2.charAt(0) == '1'){
+            if(addition == true){
+                StatusReg.setDigitCarryFlag(1);
+                System.out.println("DigitCarryFlag wurde gesetzt aufgrund charAt(0)");
+            }else{
+                StatusReg.setDigitCarryFlag(0);
+                System.out.println("DigitCarryFlag wurde nicht gesetzt aufgrund charAt(0)");
+            }
+        }else if(binaryNumber1.charAt(0) == '0' && binaryNumber2.charAt(0) == '0'){
+            if(addition == true){
+                StatusReg.setDigitCarryFlag(0);
+                System.out.println("DigitCarryFlag wurde nicht gesetzt aufgrund charAt(0)");
+            }else{
+                StatusReg.setDigitCarryFlag(1);
+                System.out.println("DigitCarryFlag wurde gesetzt aufgrund charAt(0)");
+            }
+        }else if(binaryNumber1.charAt(1) == '1' && binaryNumber2.charAt(1) == '1'){
+            if(addition == true){
+                StatusReg.setDigitCarryFlag(1);
+                System.out.println("DigitCarryFlag wurde gesetzt aufgrund charAt(1)");
+            }else{
+                StatusReg.setDigitCarryFlag(0);
+                System.out.println("DigitCarryFlag wurde nicht gesetzt aufgrund charAt(1)");
+            }
+        }else if(binaryNumber1.charAt(1) == '0' && binaryNumber2.charAt(1) == '0'){
+            if(addition == true){
+                StatusReg.setDigitCarryFlag(0);
+                System.out.println("DigitCarryFlag wurde nicht gesetzt aufgrund charAt(1)");
+            }else{
+                StatusReg.setDigitCarryFlag(1);
+                System.out.println("DigitCarryFlag wurde gesetzt aufgrund charAt(1)");
+            }
+        }else if(binaryNumber1.charAt(2) == '1' && binaryNumber2.charAt(2) == '1'){
+            if(addition == true){
+                StatusReg.setDigitCarryFlag(1);
+                System.out.println("DigitCarryFlag wurde gesetzt aufgrund charAt(2)");
+            }else{
+                StatusReg.setDigitCarryFlag(0);
+                System.out.println("DigitCarryFlag wurde nicht gesetzt aufgrund charAt(2)");
+            }
+        }else if(binaryNumber1.charAt(2) == '0' && binaryNumber2.charAt(2) == '0'){
+            if(addition == true){
+                StatusReg.setDigitCarryFlag(0);
+                System.out.println("DigitCarryFlag wurde nicht gesetzt aufgrund charAt(2)");
+            }else{
+                StatusReg.setDigitCarryFlag(1);
+                System.out.println("DigitCarryFlag wurde gesetzt aufgrund charAt(2)");
+            }
+        }else if(binaryNumber1.charAt(3) == '1' && binaryNumber2.charAt(3) == '1'){
+            if(addition == true){
+                StatusReg.setDigitCarryFlag(1);
+                System.out.println("DigitCarryFlag wurde gesetzt aufgrund charAt(3)");
+            }else{
+                StatusReg.setDigitCarryFlag(0);
+                System.out.println("DigitCarryFlag wurde nicht gesetzt aufgrund charAt(3)");
+            }
+        }else{
+            if(addition == true){
+                StatusReg.setDigitCarryFlag(0);
+                System.out.println("DigitCarryFlag wurde nicht gesetzt aufgrund charAt(3)");
+            }else{
+                StatusReg.setDigitCarryFlag(1);
+                System.out.println("DigitCarryFlag wurde gesetzt aufgrund charAt(3)");
+            }
+        }
+    }
 }
+
