@@ -28,7 +28,7 @@ public class RAM {
 
     public static int setRam(int value, int index)
     {
-        if(index >= 12 && index <= 79)
+        if(index <= 79)
         {
             if(StatusReg.getRP0() == 0 && StatusReg.getRP1() == 0  || StatusReg.getRP0() == 0 && StatusReg.getRP1() == 1)
             {
@@ -44,6 +44,21 @@ public class RAM {
             }
         }
         return -1;
+    }
+
+    public static int setRegister(int index, int value, int rp0)
+    {
+        if(rp0 == 0)
+        {
+        ram[index] = value;
+        return 1;
+        }
+        if(rp0 == 1)
+        {
+            ram[index+128] = value;
+            return 1;
+        }
+        return 0;
     }
 
     public static int getRamHex(int index)

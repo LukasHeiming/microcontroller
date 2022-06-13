@@ -11,6 +11,15 @@ public class Port_RA {
 
     public static boolean getPortRA(int index)
     {
+        int regVal = 0;
+        for(int i = 0; i < Port_RA.length;i++)
+        {
+            if(Port_RA[i] == true)
+            {
+                regVal = regVal + (int)Math.pow(2, i);
+            }
+        }
+        RAM.setRegister(5, regVal, 0);
         return Port_RA[index];
     }
 

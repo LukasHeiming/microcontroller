@@ -1,30 +1,34 @@
 public class Intcon {
 
-    //7: GIE
-    //6: EEIE
-    //5: T0IE
-    //4: INTE
-    //3: RBIE
-    //2: T0IF
-    //1: INTF
-    //0: RBIF
+    // 7: GIE
+    // 6: EEIE
+    // 5: T0IE
+    // 4: INTE
+    // 3: RBIE
+    // 2: T0IF
+    // 1: INTF
+    // 0: RBIF
 
     public static int[] IntconReg = { 0, 0, 0, 0, 0, 0, 0, 0 };
 
     public static String getIntcon() {
         int iIntcon = 0;
-       
-         for (int i = 0; i < IntconReg.length; i++) {
-                iIntcon = iIntcon + IntconReg[i] * (int)Math.pow((double)2,(double)i);     
+
+        for (int i = 0; i < IntconReg.length; i++) {
+            iIntcon = iIntcon + IntconReg[i] * (int) Math.pow((double) 2, (double) i);
         }
-        
-        String sIntcon = Integer.toHexString(iIntcon).toUpperCase();    
+
+        String sIntcon = Integer.toHexString(iIntcon).toUpperCase();
         return sIntcon;
-    
+
     }
 
-
     public static int getGIE() {
+        int iIntcon = 0;
+        for (int i = 0; i < IntconReg.length; i++) {
+            iIntcon = iIntcon + IntconReg[i] * (int) Math.pow((double) 2, (double) i);
+        }
+        RAM.setRegister(11, iIntcon, 0);
         return IntconReg[7];
     }
 

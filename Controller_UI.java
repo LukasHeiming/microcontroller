@@ -1045,7 +1045,7 @@ public class Controller_UI {
 		// lbl_SFR_W_PCLATH_Value
 		lbl_SFR_W_PCintern_Value.setText(Integer.toHexString(PC.programCounter));
 		lbl_SFR_W_Status_Value.setText(StatusReg.getStatus());
-		// lbl_SFR_W_FSR_Value
+		lbl_SFR_W_FSR_Value.setText(Integer.toHexString(FSR_Register.getFsr()));
 		lbl_SFR_W_Option_Value.setText(Option.getOption());
 		// lbl_SFR_W_Vorteiler_Value
 		// lbl_SFR_W_Timer0_Value
@@ -1136,7 +1136,7 @@ public class Controller_UI {
 				if (value == -1) {
 					table_Panel_Fileregister_SFR_GPR.setValueAt("x", i, j+1);
 				} else {
-					table_Panel_Fileregister_SFR_GPR.setValueAt(value, i, j+1);
+					table_Panel_Fileregister_SFR_GPR.setValueAt(Integer.toHexString(value).toUpperCase(), i, j+1);
 
 				}
 			}

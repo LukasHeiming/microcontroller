@@ -83,7 +83,7 @@ public class Flash {
                 }
                 // jumpmarken abspeichern (goto) oder unterprugramm rücksprungmarken mit
                 // nächstem befehl in der nächsten zeile
-                if (line.matches("^[ ]+[0-9]+[ ]+ [A-Za-z]+[ ][ ]+") == true) {
+                if (line.matches("^[ ]+[0-9]+[ ]+ [A-Za-z0-9]+[ ][ ]+") == true) {
                     String jumpmark = line.replace(" ", "");
                     jumpmark = jumpmark.substring(5);
                     jumpMarksAndLines[jumpMarksCounter][0] = jumpmark;
@@ -106,7 +106,6 @@ public class Flash {
                 if (line.matches(".*[0-9A-Za-z]*[ ]*equ[ ]*[0-9A-Za-z]*.*") == true) {
                     String equ = line;
                     String equName = "";
-                    String equValue = "";
                     String equAdress = "";
                     if (equ.indexOf(";") != -1) {
                         equ = equ.substring(equ.indexOf("0") + 5, equ.indexOf(";"));
@@ -114,24 +113,11 @@ public class Flash {
                         equ = equ.substring(equ.indexOf("0") + 5, equ.length());
                     }
                     equName = equ.substring(0, equ.indexOf("equ")).replaceAll("[ ]", "");
-                    equValue = equ.substring(equ.indexOf("equ") + 3, equ.length()).replaceAll("[ ]", "");
-                    equValue = equValue.replaceAll("h", "");
+                    equAdress = equ.substring(equ.indexOf("equ") + 3, equ.length()).replaceAll("[ ]", "");
+                    equAdress = equAdress.replaceAll("h", "");
                     equValues[equCounter][0] = equName;
-                    // equ abspeichern
-                    for (int i = 0; i < 256; i++) {
-                        if (RAM.ramUsage[i] == 0) {
-                            if (RAM.ramUsage[i] > 79) {
-                                StatusReg.setRP0(1);
-                            } else {
-                                StatusReg.setRP0(0);
-                            }
-                            RAM.setRam(Integer.parseInt(equValue, 16), i);
-                            equValues[equCounter][1] = Integer.toString(i);
-                            break;
-                        }
-                    }
+                    equValues[equCounter][1] = String.valueOf(Integer.parseInt(equAdress, 16));
                     System.out.println("equName: " + equName);
-                    System.out.println("equValue: " + equValue);
                     System.out.println("equAddress: " + equValues[equCounter][1]);
                     equCounter++;
                 }

@@ -17,6 +17,17 @@ public class Port_RB {
     public static StatusEnum[] RBStatus = {StatusEnum.INPUT,StatusEnum.INPUT,StatusEnum.INPUT,StatusEnum.INPUT,StatusEnum.INPUT,StatusEnum.INPUT,StatusEnum.INPUT,StatusEnum.INPUT};
 
     public static boolean getPort_RB(int index) {
+
+        int regVal = 0;
+        for(int i = 0; i < Port_RB.length;i++)
+        {
+            if(Port_RB[i] == true)
+            {
+                regVal = regVal + (int)Math.pow(2, i);
+            }
+        }
+        RAM.setRegister(6, regVal, 0);
+
         return Port_RB[index];
     }
 
