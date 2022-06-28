@@ -1,18 +1,13 @@
 
 public class FSR_Register {
-    
-    public static int fsr = 0;
-    public static int fsrMask = 0b11111111;
 
     public static void setFsr(int value)
     {
-        fsr = value & fsrMask;
+        RAM.setRam(value, 4);
     }
 
     public static int getFsr()
     {
-        fsr = RAM.getRam(4);
-
-        return fsr;
+        return RAM.getRam(4);
     }
 }

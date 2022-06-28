@@ -13,6 +13,7 @@ import java.awt.Color;
 import javax.swing.JLabel;
 import javax.swing.SwingConstants;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JTable;
 //import javax.swing.UIManager;
 //import javax.swing.table.AbstractTableModel;
@@ -20,9 +21,12 @@ import javax.swing.JTable;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultHighlighter;
 import javax.swing.text.Highlighter;
+import javax.swing.text.Utilities;
+import javax.swing.text.Highlighter.Highlight;
 //import javax.swing.ListSelectionModel;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.JTextArea;
+import javax.swing.JTextField;
 import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.JToolBar;
@@ -30,15 +34,18 @@ import javax.swing.JToolBar;
 //import javax.swing.JMenuBar;
 import javax.swing.JFileChooser;
 import java.awt.event.ActionListener;
+import java.security.KeyStore.LoadStoreParameter;
 import java.awt.event.ActionEvent;
 import java.awt.*;
 //import javax.swing.*;
 
-public class Controller_UI {
+public class Controller_UI extends Thread implements ActionListener {
 
 	private JFrame frmPicfSimulator;
 	// private JTable table_Panel_Fileregister_SFR_GPR;
 	public static Highlighter.Highlight[] highlights;
+	public static int breakpoints[] = new int[128];
+	public static int counterBreakpoints = 0;
 	public static JPanel panel_5 = new JPanel(new BorderLayout());
 	public static JPanel panel_ProgrammLSTDatei = new JPanel(new BorderLayout());
 	public static JTextArea textArea_Panel_ProgrammLSTDatei = new JTextArea();
@@ -214,6 +221,24 @@ public class Controller_UI {
 	public static JButton btn_Datei_Laden = new JButton("Datei laden");
 	static DefaultHighlighter.DefaultHighlightPainter painter = new DefaultHighlighter.DefaultHighlightPainter(
 			Color.GREEN);
+	static DefaultHighlighter.DefaultHighlightPainter painterRed = new DefaultHighlighter.DefaultHighlightPainter(
+			Color.RED);
+	public static JLabel lb_Timing_Laufzeit = new JLabel("Laufzeit:");
+	public static JLabel lbl_Timing_Quarz = new JLabel("Quarz:");
+	public static JCheckBox chckbxFreigabeWatchdog = new JCheckBox("Freigabe Watchdog");
+	public static JLabel lbl_Timing_Watchdog = new JLabel("Watchdog:");
+	public static String[] items = new String[] { "32 kHz", "100 kHz", "500 kHz", "1 MHz", "2 MHz", "4 MHz", "8 MHz",
+			"12 MHz", "16 MHz", "20 MHz" };
+	public static JComboBox<String> comboBox_Timing_Quarz_Value = new JComboBox<>(items);
+	public static JLabel lbl_Timing_Laufzeit_Value = new JLabel("0");
+	public static JLabel lblNewLabel = new JLabel("\u00B5");
+	public static JLabel lbl_Timing_Watchdog_Value = new JLabel("00");
+	public static UI_Thread myThread = new UI_Thread();
+	public static boolean killThread = false;
+	public static JPanel panel_9 = new JPanel();
+	public static JPanel panel_Breakpoint = new JPanel();
+	public static JButton btn_Breakpoint = new JButton("Set");
+	public static JTextField textField_Breakpoint = new JTextField();
 
 	/**
 	 * Launch the application.
@@ -266,6 +291,7 @@ public class Controller_UI {
 		// JTextArea textArea_Panel_ProgrammLSTDatei = new JTextArea();
 		textArea_Panel_ProgrammLSTDatei.setEditable(false);
 		textArea_Panel_ProgrammLSTDatei.setBounds(10, 11, 702, 800);
+
 		// create the middle panel components
 
 		JScrollPane scroll = new JScrollPane(textArea_Panel_ProgrammLSTDatei);
@@ -276,12 +302,12 @@ public class Controller_UI {
 
 		// JPanel panel = new JPanel();
 		panel.setBorder(new TitledBorder(null, "SFR + W", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-		panel.setBounds(4, 38, 262, 207);
+		panel.setBounds(4, 38, 262, 220);
 		frmPicfSimulator.getContentPane().add(panel);
 		panel.setLayout(null);
 
 		// JPanel panel_SFR_W = new JPanel();
-		panel_SFR_W.setBounds(6, 16, 250, 180);
+		panel_SFR_W.setBounds(6, 16, 250, 193);
 		panel.add(panel_SFR_W);
 		panel_SFR_W.setBackground(Color.WHITE);
 		panel_SFR_W.setLayout(null);
@@ -360,55 +386,114 @@ public class Controller_UI {
 
 		// JPanel panel_2 = new JPanel();
 		panel_2.setBorder(new TitledBorder(null, "Stack", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-		panel_2.setBounds(637, 38, 101, 207);
+		panel_2.setBounds(637, 38, 101, 156);
 		frmPicfSimulator.getContentPane().add(panel_2);
 		panel_2.setLayout(null);
 
 		// JPanel panel_Stack = new JPanel();
-		panel_Stack.setBounds(6, 16, 89, 180);
+		panel_Stack.setBounds(6, 16, 89, 133);
 		panel_2.add(panel_Stack);
 		panel_Stack.setBackground(Color.WHITE);
 		panel_Stack.setLayout(null);
 
 		// JLabel lbl_Stack_0001 = new JLabel("0001");
 		lbl_Stack_0001.setHorizontalAlignment(SwingConstants.RIGHT);
-		lbl_Stack_0001.setBounds(24, 22, 35, 14);
+		lbl_Stack_0001.setBounds(24, 11, 35, 14);
 		panel_Stack.add(lbl_Stack_0001);
 
 		// JLabel lbl_Stack_0002 = new JLabel("0002");
 		lbl_Stack_0002.setHorizontalAlignment(SwingConstants.RIGHT);
-		lbl_Stack_0002.setBounds(24, 36, 35, 14);
+		lbl_Stack_0002.setBounds(24, 25, 35, 14);
 		panel_Stack.add(lbl_Stack_0002);
 
 		// JLabel lbl_Stack_0003 = new JLabel("0003");
 		lbl_Stack_0003.setHorizontalAlignment(SwingConstants.RIGHT);
-		lbl_Stack_0003.setBounds(24, 50, 35, 14);
+		lbl_Stack_0003.setBounds(24, 39, 35, 14);
 		panel_Stack.add(lbl_Stack_0003);
 
 		// JLabel lbl_Stack_0004 = new JLabel("0004");
 		lbl_Stack_0004.setHorizontalAlignment(SwingConstants.RIGHT);
-		lbl_Stack_0004.setBounds(24, 64, 35, 14);
+		lbl_Stack_0004.setBounds(24, 53, 35, 14);
 		panel_Stack.add(lbl_Stack_0004);
 
 		// JLabel lbl_Stack_0005 = new JLabel("0005");
 		lbl_Stack_0005.setHorizontalAlignment(SwingConstants.RIGHT);
-		lbl_Stack_0005.setBounds(24, 78, 35, 14);
+		lbl_Stack_0005.setBounds(24, 67, 35, 14);
 		panel_Stack.add(lbl_Stack_0005);
 
 		// JLabel lbl_Stack_0006 = new JLabel("0006");
 		lbl_Stack_0006.setHorizontalAlignment(SwingConstants.RIGHT);
-		lbl_Stack_0006.setBounds(24, 92, 35, 14);
+		lbl_Stack_0006.setBounds(24, 81, 35, 14);
 		panel_Stack.add(lbl_Stack_0006);
 
 		// JLabel lbl_Stack_0007 = new JLabel("0007");
 		lbl_Stack_0007.setHorizontalAlignment(SwingConstants.RIGHT);
-		lbl_Stack_0007.setBounds(24, 106, 35, 14);
+		lbl_Stack_0007.setBounds(24, 95, 35, 14);
 		panel_Stack.add(lbl_Stack_0007);
 
 		// JLabel lbl_Stack_0008 = new JLabel("0008");
 		lbl_Stack_0008.setHorizontalAlignment(SwingConstants.RIGHT);
-		lbl_Stack_0008.setBounds(24, 120, 35, 14);
+		lbl_Stack_0008.setBounds(24, 109, 35, 14);
 		panel_Stack.add(lbl_Stack_0008);
+
+		// JPanel panel_9 = new JPanel();
+		panel_9.setLayout(null);
+		panel_9.setBorder(new TitledBorder(null, "Breakpoint", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		panel_9.setBounds(637, 194, 101, 64);
+		frmPicfSimulator.getContentPane().add(panel_9);
+
+		// JPanel panel_Breakpoint = new JPanel();
+		panel_Breakpoint.setLayout(null);
+		panel_Breakpoint.setBackground(Color.WHITE);
+		panel_Breakpoint.setBounds(6, 16, 89, 37);
+		panel_9.add(panel_Breakpoint);
+
+		// JButton btn_Breakpoint = new JButton("Set");
+		btn_Breakpoint.setBounds(3, 11, 54, 23);
+		panel_Breakpoint.add(btn_Breakpoint);
+		btn_Breakpoint.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				try {
+
+					for(int i = 0; i < counterBreakpoints;i++)
+					{
+						if(breakpoints[i] == Integer.parseInt(textField_Breakpoint.getText()))
+						{
+							Highlight[] hl = textArea_Panel_ProgrammLSTDatei.getHighlighter().getHighlights();
+							textArea_Panel_ProgrammLSTDatei.getHighlighter().removeHighlight(hl[i+1]);
+							counterBreakpoints = counterBreakpoints - 1;
+							for(int j = 0; j < 127 - i; i++)
+							{
+								breakpoints[i] = breakpoints[i+1];
+							}
+							uiUpdate();
+							return;
+						}
+					}
+
+					textArea_Panel_ProgrammLSTDatei.getHighlighter().addHighlight(
+							textArea_Panel_ProgrammLSTDatei
+									.getLineStartOffset(
+											Flash.firstCommandLine[Integer.parseInt(textField_Breakpoint.getText())]),
+							textArea_Panel_ProgrammLSTDatei
+									.getLineEndOffset(
+											Flash.firstCommandLine[Integer.parseInt(textField_Breakpoint.getText())]),
+							painterRed);
+					breakpoints[counterBreakpoints] = Integer.parseInt(textField_Breakpoint.getText());
+					counterBreakpoints++;
+
+				} catch (BadLocationException e1) {
+					e1.printStackTrace();
+				}
+				uiUpdate();
+			}
+		});
+
+		// textField_Breakpoint = new JTextField();
+		textField_Breakpoint = new JTextField();
+		textField_Breakpoint.setBounds(59, 12, 25, 20);
+		panel_Breakpoint.add(textField_Breakpoint);
+		textField_Breakpoint.setColumns(10);
 
 		// JPanel panel_1 = new JPanel();
 		panel_1.setBorder(new TitledBorder(null, "SFR (Bit)", TitledBorder.LEADING, TitledBorder.TOP, null, null));
@@ -417,7 +502,7 @@ public class Controller_UI {
 		panel_1.setLayout(null);
 
 		// JPanel panel_SFRBit = new JPanel();
-		panel_SFRBit.setBounds(6, 16, 363, 180);
+		panel_SFRBit.setBounds(6, 16, 363, 193);
 		panel_1.add(panel_SFRBit);
 		panel_SFRBit.setBackground(Color.WHITE);
 		panel_SFRBit.setLayout(null);
@@ -734,7 +819,7 @@ public class Controller_UI {
 		scrollPane.setViewportView(table_Panel_Fileregister_SFR_GPR);
 		table_Panel_Fileregister_SFR_GPR.setBorder(new LineBorder(Color.BLACK));
 		table_Panel_Fileregister_SFR_GPR.setBackground(Color.WHITE);
-		table_Panel_Fileregister_SFR_GPR.setEnabled(false);
+		table_Panel_Fileregister_SFR_GPR.setEnabled(true);
 
 		// JPanel panel_3 = new JPanel();
 		panel_3.setBorder(new TitledBorder(null, "Port A", TitledBorder.LEADING, TitledBorder.TOP, null, null));
@@ -770,42 +855,52 @@ public class Controller_UI {
 
 		// JCheckBox checkbox_PortA_Tris_Value4 = new JCheckBox("4");
 		checkbox_PortA_Tris_Value4.setBounds(172, 7, 40, 23);
+		checkbox_PortA_Tris_Value4.addActionListener(this);
 		panel_PortA.add(checkbox_PortA_Tris_Value4);
 
 		// JCheckBox checkbox_PortA_Tris_Value3 = new JCheckBox("3");
 		checkbox_PortA_Tris_Value3.setBounds(214, 7, 40, 23);
+		checkbox_PortA_Tris_Value3.addActionListener(this);
 		panel_PortA.add(checkbox_PortA_Tris_Value3);
 
 		// JCheckBox checkbox_PortA_Tris_Value2 = new JCheckBox("2");
 		checkbox_PortA_Tris_Value2.setBounds(256, 7, 40, 23);
+		checkbox_PortA_Tris_Value2.addActionListener(this);
 		panel_PortA.add(checkbox_PortA_Tris_Value2);
 
 		// JCheckBox checkbox_PortA_Tris_Value1 = new JCheckBox("1");
 		checkbox_PortA_Tris_Value1.setBounds(298, 7, 40, 23);
+		checkbox_PortA_Tris_Value1.addActionListener(this);
 		panel_PortA.add(checkbox_PortA_Tris_Value1);
 
 		// JCheckBox checkbox_PortA_Tris_Value0 = new JCheckBox("0");
 		checkbox_PortA_Tris_Value0.setBounds(340, 7, 40, 23);
+		checkbox_PortA_Tris_Value0.addActionListener(this);
 		panel_PortA.add(checkbox_PortA_Tris_Value0);
 
 		// JCheckBox checkbox_PortA_Pin_Value0 = new JCheckBox("0");
 		checkbox_PortA_Pin_Value0.setBounds(340, 36, 40, 23);
+		checkbox_PortA_Pin_Value0.addActionListener(this);
 		panel_PortA.add(checkbox_PortA_Pin_Value0);
 
 		// JCheckBox checkbox_PortA_Pin_Value1 = new JCheckBox("1");
 		checkbox_PortA_Pin_Value1.setBounds(298, 36, 40, 23);
+		checkbox_PortA_Pin_Value1.addActionListener(this);
 		panel_PortA.add(checkbox_PortA_Pin_Value1);
 
 		// JCheckBox checkbox_PortA_Pin_Value2 = new JCheckBox("2");
 		checkbox_PortA_Pin_Value2.setBounds(256, 36, 40, 23);
+		checkbox_PortA_Pin_Value2.addActionListener(this);
 		panel_PortA.add(checkbox_PortA_Pin_Value2);
 
 		// JCheckBox checkbox_PortA_Pin_Value3 = new JCheckBox("3");
 		checkbox_PortA_Pin_Value3.setBounds(214, 36, 40, 23);
+		checkbox_PortA_Pin_Value3.addActionListener(this);
 		panel_PortA.add(checkbox_PortA_Pin_Value3);
 
 		// JCheckBox checkbox_PortA_Pin_Value4 = new JCheckBox("4");
 		checkbox_PortA_Pin_Value4.setBounds(172, 36, 40, 23);
+		checkbox_PortA_Pin_Value4.addActionListener(this);
 		panel_PortA.add(checkbox_PortA_Pin_Value4);
 
 		// JPanel panel_4 = new JPanel();
@@ -830,66 +925,82 @@ public class Controller_UI {
 
 		// JCheckBox checkbox_PortB_Tris_Value7 = new JCheckBox("7");
 		checkbox_PortB_Tris_Value7.setBounds(46, 7, 40, 23);
+		checkbox_PortB_Tris_Value7.addActionListener(this);
 		panel_PortB.add(checkbox_PortB_Tris_Value7);
 
 		// JCheckBox checkbox_PortB_Tris_Value6 = new JCheckBox("6");
 		checkbox_PortB_Tris_Value6.setBounds(88, 7, 40, 23);
+		checkbox_PortB_Tris_Value6.addActionListener(this);
 		panel_PortB.add(checkbox_PortB_Tris_Value6);
 
 		// JCheckBox checkbox_PortB_Tris_Value5 = new JCheckBox("5");
 		checkbox_PortB_Tris_Value5.setBounds(130, 7, 40, 23);
+		checkbox_PortB_Tris_Value5.addActionListener(this);
 		panel_PortB.add(checkbox_PortB_Tris_Value5);
 
 		// JCheckBox checkbox_PortB_Tris_Value4 = new JCheckBox("4");
 		checkbox_PortB_Tris_Value4.setBounds(172, 7, 40, 23);
+		checkbox_PortB_Tris_Value4.addActionListener(this);
 		panel_PortB.add(checkbox_PortB_Tris_Value4);
 
 		// JCheckBox checkbox_PortB_Pin_Value4 = new JCheckBox("4");
 		checkbox_PortB_Pin_Value4.setBounds(172, 36, 40, 23);
+		checkbox_PortB_Pin_Value4.addActionListener(this);
 		panel_PortB.add(checkbox_PortB_Pin_Value4);
 
 		// JCheckBox checkbox_PortB_Pin_Value3 = new JCheckBox("3");
 		checkbox_PortB_Pin_Value3.setBounds(214, 36, 40, 23);
+		checkbox_PortB_Pin_Value3.addActionListener(this);
 		panel_PortB.add(checkbox_PortB_Pin_Value3);
 
 		// JCheckBox checkbox_PortB_Tris_Value3 = new JCheckBox("3");
 		checkbox_PortB_Tris_Value3.setBounds(214, 7, 40, 23);
+		checkbox_PortB_Tris_Value3.addActionListener(this);
 		panel_PortB.add(checkbox_PortB_Tris_Value3);
 
 		// JCheckBox checkbox_PortB_Tris_Value2 = new JCheckBox("2");
 		checkbox_PortB_Tris_Value2.setBounds(256, 7, 40, 23);
+		checkbox_PortB_Tris_Value2.addActionListener(this);
 		panel_PortB.add(checkbox_PortB_Tris_Value2);
 
 		// JCheckBox checkbox_PortB_Pin_Value2 = new JCheckBox("2");
 		checkbox_PortB_Pin_Value2.setBounds(256, 36, 40, 23);
+		checkbox_PortB_Pin_Value2.addActionListener(this);
 		panel_PortB.add(checkbox_PortB_Pin_Value2);
 
 		// JCheckBox checkbox_PortB_Pin_Value1 = new JCheckBox("1");
 		checkbox_PortB_Pin_Value1.setBounds(298, 36, 40, 23);
+		checkbox_PortB_Pin_Value1.addActionListener(this);
 		panel_PortB.add(checkbox_PortB_Pin_Value1);
 
 		// JCheckBox checkbox_PortB_Tris_Value1 = new JCheckBox("1");
 		checkbox_PortB_Tris_Value1.setBounds(298, 7, 40, 23);
+		checkbox_PortB_Tris_Value1.addActionListener(this);
 		panel_PortB.add(checkbox_PortB_Tris_Value1);
 
 		// JCheckBox checkbox_PortB_Tris_Value0 = new JCheckBox("0");
 		checkbox_PortB_Tris_Value0.setBounds(340, 7, 40, 23);
+		checkbox_PortB_Tris_Value0.addActionListener(this);
 		panel_PortB.add(checkbox_PortB_Tris_Value0);
 
 		// JCheckBox checkbox_PortB_Pin_Value0 = new JCheckBox("0");
 		checkbox_PortB_Pin_Value0.setBounds(340, 36, 40, 23);
+		checkbox_PortB_Pin_Value0.addActionListener(this);
 		panel_PortB.add(checkbox_PortB_Pin_Value0);
 
 		// JCheckBox checkbox_PortB_Pin_Value5 = new JCheckBox("5");
 		checkbox_PortB_Pin_Value5.setBounds(130, 36, 40, 23);
+		checkbox_PortB_Pin_Value5.addActionListener(this);
 		panel_PortB.add(checkbox_PortB_Pin_Value5);
 
 		// JCheckBox checkbox_PortB_Pin_Value6 = new JCheckBox("6");
 		checkbox_PortB_Pin_Value6.setBounds(88, 36, 40, 23);
+		checkbox_PortB_Pin_Value6.addActionListener(this);
 		panel_PortB.add(checkbox_PortB_Pin_Value6);
 
 		// JCheckBox checkbox_PortB_Pin_Value7 = new JCheckBox("7");
 		checkbox_PortB_Pin_Value7.setBounds(46, 36, 40, 23);
+		checkbox_PortB_Pin_Value7.addActionListener(this);
 		panel_PortB.add(checkbox_PortB_Pin_Value7);
 
 		// JPanel panel_6 = new JPanel();
@@ -902,6 +1013,90 @@ public class Controller_UI {
 		panel_Timing.setBounds(6, 16, 227, 124);
 		panel_6.add(panel_Timing);
 		panel_Timing.setBackground(Color.WHITE);
+
+		panel_Timing.setLayout(null);
+
+		// JLabel lb_Timing_Laufzeit = new JLabel("Laufzeit:");
+		lb_Timing_Laufzeit.setBounds(10, 11, 53, 14);
+		panel_Timing.add(lb_Timing_Laufzeit);
+
+		// JLabel lbl_Timing_Quarz = new JLabel("Quarz:");
+		lbl_Timing_Quarz.setBounds(10, 36, 42, 14);
+		panel_Timing.add(lbl_Timing_Quarz);
+
+		// JCheckBox chckbxFreigabeWatchdog = new JCheckBox("Freigabe Watchdog");
+		chckbxFreigabeWatchdog.setBounds(6, 57, 137, 23);
+		panel_Timing.add(chckbxFreigabeWatchdog);
+
+		// JLabel lbl_Timing_Watchdog = new JLabel("Watchdog:");
+		lbl_Timing_Watchdog.setBounds(10, 87, 75, 14);
+		panel_Timing.add(lbl_Timing_Watchdog);
+		lbl_Timing_Laufzeit_Value.setHorizontalAlignment(SwingConstants.LEFT);
+		lbl_Timing_Laufzeit_Value.setBounds(62, 11, 81, 14);
+
+		panel_Timing.add(lbl_Timing_Laufzeit_Value);
+		lblNewLabel.setBounds(153, 11, 14, 14);
+
+		panel_Timing.add(lblNewLabel);
+		lbl_Timing_Watchdog_Value.setHorizontalAlignment(SwingConstants.RIGHT);
+		lbl_Timing_Watchdog_Value.setBounds(95, 87, 48, 14);
+
+		panel_Timing.add(lbl_Timing_Watchdog_Value);
+
+		// JComboBox comboBox_Timing_Quarz_Value = new JComboBox();
+		comboBox_Timing_Quarz_Value.setMaximumRowCount(10);
+		comboBox_Timing_Quarz_Value.setBounds(62, 32, 81, 22);
+		panel_Timing.add(comboBox_Timing_Quarz_Value);
+		comboBox_Timing_Quarz_Value.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				switch (comboBox_Timing_Quarz_Value.getSelectedIndex()) {
+					case (0):
+						TMR0.setQuarztakt(31.25);
+						System.out.println("Quarztakt: " + TMR0.getQuarztakt());
+						break;
+					case (1):
+						TMR0.setQuarztakt(10);
+						System.out.println("Quarztakt: " + TMR0.getQuarztakt());
+						break;
+					case (2):
+						TMR0.setQuarztakt(2);
+						System.out.println("Quarztakt: " + TMR0.getQuarztakt());
+						break;
+					case (3):
+						TMR0.setQuarztakt(1);
+						System.out.println("Quarztakt: " + TMR0.getQuarztakt());
+						break;
+					case (4):
+						TMR0.setQuarztakt(0.5);
+						System.out.println("Quarztakt: " + TMR0.getQuarztakt());
+						break;
+					case (5):
+						TMR0.setQuarztakt(0.25);
+						System.out.println("Quarztakt: " + TMR0.getQuarztakt());
+						break;
+					case (6):
+						TMR0.setQuarztakt(0.125);
+						System.out.println("Quarztakt: " + TMR0.getQuarztakt());
+						break;
+					case (7):
+						TMR0.setQuarztakt(0.0833);
+						System.out.println("Quarztakt: " + TMR0.getQuarztakt());
+						break;
+					case (8):
+						TMR0.setQuarztakt(0.0625);
+						System.out.println("Quarztakt: " + TMR0.getQuarztakt());
+						break;
+					case (9):
+						TMR0.setQuarztakt(0.05);
+						System.out.println("Quarztakt: " + TMR0.getQuarztakt());
+						break;
+					default:
+
+						break;
+				}
+				;
+			}
+		});
 
 		// JPanel panel_7 = new JPanel();
 		panel_7.setBorder(new TitledBorder(null, "Bedienelemente", TitledBorder.LEADING, TitledBorder.TOP, null, null));
@@ -918,10 +1113,29 @@ public class Controller_UI {
 		// JButton btn_Bedienelemente_Start = new JButton("Start");
 		btn_Bedienelemente_Start.setBounds(10, 7, 176, 23);
 		panel_Bedienelemente.add(btn_Bedienelemente_Start);
+		btn_Bedienelemente_Start.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				killThread = false;
+				System.out.println("killThread: " + killThread);
+				if (!myThread.isAlive()) {
+
+					myThread.start();
+				}
+
+			}
+		});
 
 		// JButton btn_Bedienelemente_Stopp = new JButton("Stopp");
 		btn_Bedienelemente_Stopp.setBounds(10, 32, 176, 23);
 		panel_Bedienelemente.add(btn_Bedienelemente_Stopp);
+		btn_Bedienelemente_Stopp.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if (myThread.isAlive()) {
+					killThread = true;
+				}
+				System.out.println("killThread: " + killThread);
+			}
+		});
 
 		// JButton btn_Bedienelemente_Reset = new JButton("Reset");
 		btn_Bedienelemente_Reset.setBounds(10, 85, 176, 23);
@@ -963,36 +1177,8 @@ public class Controller_UI {
 		panel_Bedienelemente.add(btn_Bedienelemente_1Schritt);
 		btn_Bedienelemente_1Schritt.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				InstructionRegister.nextInstruction();
-				System.out.println("Programmcounter: " + PC.programCounter);
-				if (PC.programCounter < Flash.firstCommandLine.length) {
-					try {
-						textArea_Panel_ProgrammLSTDatei.getHighlighter().addHighlight(
-								textArea_Panel_ProgrammLSTDatei
-										.getLineStartOffset(Flash.firstCommandLine[PC.programCounter]),
-								textArea_Panel_ProgrammLSTDatei
-										.getLineEndOffset(Flash.firstCommandLine[PC.programCounter]),
-								painter);
-
-						// if (PC.programCounter > 0) {
-						textArea_Panel_ProgrammLSTDatei.getHighlighter().removeAllHighlights();
-
-						// }
-						textArea_Panel_ProgrammLSTDatei.getHighlighter().addHighlight(
-								textArea_Panel_ProgrammLSTDatei
-										.getLineStartOffset(Flash.firstCommandLine[PC.programCounter]),
-								textArea_Panel_ProgrammLSTDatei
-										.getLineEndOffset(Flash.firstCommandLine[PC.programCounter]),
-								painter);
-
-					} catch (BadLocationException e1) {
-						e1.printStackTrace();
-					}
-
-					uiUpdate();
-				}
-
-				// lbl_SFR_W_WRegister_Value.setText(Integer.toHexString(W_Register.getValue()));
+				System.out.println("DRÜCK KNOPF");
+				do1Command();
 			}
 		});
 
@@ -1017,6 +1203,7 @@ public class Controller_UI {
 					String sProgram = Flash.readFile(chooser.getSelectedFile().getName());
 					textArea_Panel_ProgrammLSTDatei.insert(sProgram, 0);
 					try {
+
 						if (PC.programCounter > 0) {
 							textArea_Panel_ProgrammLSTDatei.getHighlighter().removeAllHighlights();
 						}
@@ -1039,16 +1226,39 @@ public class Controller_UI {
 	}
 
 	public static void uiUpdate() {
+		Vorteiler.setPrescaler();
+		System.out.println("update");
+		Tris_Ra.updateTrisA();
+		Tris_RB.updateTrisB();
+		Port_RB.RB0Interrupt();
+		Port_RB.RB04_7Interrupt();
 		System.out.println("W_Register: " + W_Register.getValue());
 		lbl_SFR_W_WRegister_Value.setText(Integer.toHexString(W_Register.getValue()).toUpperCase());
-		// lbl_SFR_W_PCL_Value
-		// lbl_SFR_W_PCLATH_Value
+		lbl_SFR_W_PCL_Value.setText(PCL.getPCL());
+		lbl_SFR_W_PCLATH_Value.setText(PCLATH.getPCLATH());
 		lbl_SFR_W_PCintern_Value.setText(Integer.toHexString(PC.programCounter));
 		lbl_SFR_W_Status_Value.setText(StatusReg.getStatus());
 		lbl_SFR_W_FSR_Value.setText(Integer.toHexString(FSR_Register.getFsr()));
 		lbl_SFR_W_Option_Value.setText(Option.getOption());
-		// lbl_SFR_W_Vorteiler_Value
-		// lbl_SFR_W_Timer0_Value
+		lbl_SFR_W_Vorteiler_Value.setText("1:" + Integer.toString(Vorteiler.getPrescaler()));
+		lbl_SFR_W_Timer0_Value.setText(Integer.toHexString(TMR0.getTMR0()));
+
+		// table_Panel_Fileregister_SFR_GPR
+		for (int i = 0; i < 32; i++) {
+			for (int j = 0; j < 8; j++) {
+				int value = 0;
+
+				value = RAM.getRamAll((i * 8) + j);
+
+				if (value == -1) {
+					table_Panel_Fileregister_SFR_GPR.setValueAt("x", i, j + 1);
+				} else {
+					table_Panel_Fileregister_SFR_GPR.setValueAt(Integer.toHexString(value).toUpperCase(), i, j + 1);
+
+				}
+			}
+
+		}
 
 		// Status Register
 		lbl_SFRBit_IRP_Value.setText(Integer.toString(StatusReg.getIRP()));
@@ -1120,28 +1330,158 @@ public class Controller_UI {
 		checkbox_PortB_Pin_Value1.setSelected(Port_RB.getPort_RB(1));
 		checkbox_PortB_Pin_Value0.setSelected(Port_RB.getPort_RB(0));
 
-		// table_Panel_Fileregister_SFR_GPR
-		for (int i = 0; i < 32; i++) {			
-			for (int j = 0; j < 8; j++) {
-				int value = 0;
-				if(i*8+j > 127)
-				{
-					StatusReg.setRP0(1);
-					value = RAM.getRam((i*8) + j - 128);
-				}
-				else{
-					StatusReg.setRP0(0);
-					value = RAM.getRam((i*8) + j);
-				}
-				if (value == -1) {
-					table_Panel_Fileregister_SFR_GPR.setValueAt("x", i, j+1);
-				} else {
-					table_Panel_Fileregister_SFR_GPR.setValueAt(Integer.toHexString(value).toUpperCase(), i, j+1);
+		// Timer
+		lbl_Timing_Laufzeit_Value.setText(Double.toString(TMR0.laufzeit));
 
+	}
+
+	public static void do1Command() {
+		System.out.println("EINS COMMAND");
+		InstructionRegister.nextInstruction();
+		System.out.println("Programmcounter: " + PC.programCounter);
+		// if (PC.programCounter < Flash.firstCommandLine.length) {
+		try {
+			System.out.println("Edit Highlights");
+			textArea_Panel_ProgrammLSTDatei.getHighlighter().addHighlight(
+					textArea_Panel_ProgrammLSTDatei
+							.getLineStartOffset(Flash.firstCommandLine[PC.programCounter]),
+					textArea_Panel_ProgrammLSTDatei
+							.getLineEndOffset(Flash.firstCommandLine[PC.programCounter]),
+					painter);
+
+			// if (PC.programCounter > 0) {
+			textArea_Panel_ProgrammLSTDatei.getHighlighter().removeAllHighlights();
+
+			// }
+			textArea_Panel_ProgrammLSTDatei.getHighlighter().addHighlight(
+					textArea_Panel_ProgrammLSTDatei
+							.getLineStartOffset(Flash.firstCommandLine[PC.programCounter]),
+					textArea_Panel_ProgrammLSTDatei
+							.getLineEndOffset(Flash.firstCommandLine[PC.programCounter]),
+					painter);
+
+			for (int i = 0; i < counterBreakpoints; i++) {
+				textArea_Panel_ProgrammLSTDatei.getHighlighter().addHighlight(
+						textArea_Panel_ProgrammLSTDatei.getLineStartOffset(Flash.firstCommandLine[breakpoints[i]]),
+						textArea_Panel_ProgrammLSTDatei.getLineEndOffset(Flash.firstCommandLine[breakpoints[i]]),
+						painterRed);
+			}
+			for(int i = 0; i < counterBreakpoints; i++)
+			{
+				
+				if(PC.programCounter == breakpoints[i])
+				{
+					btn_Bedienelemente_Stopp.doClick(100);
 				}
 			}
 
+		} catch (BadLocationException e1) {
+			e1.printStackTrace();
 		}
-		StatusReg.setRP0(0);
+
+		// }
+		uiUpdate();
 	}
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		int trisAValue = 0;
+		int trisBValue = 0;
+		int pinAValue = 0;
+		int pinBValue = 0;
+		System.out.println("actionlistener wurde aufgerufen");
+
+		// Port A -> Tris
+		if (checkbox_PortA_Tris_Value4.isSelected()) {
+			trisAValue += 16;
+		}
+		if (checkbox_PortA_Tris_Value3.isSelected()) {
+			trisAValue += 8;
+		}
+		if (checkbox_PortA_Tris_Value2.isSelected()) {
+			trisAValue += 4;
+		}
+		if (checkbox_PortA_Tris_Value1.isSelected()) {
+			trisAValue += 2;
+		}
+		if (checkbox_PortA_Tris_Value0.isSelected()) {
+			trisAValue += 1;
+		}
+
+		// Port A -> Pin
+		if (checkbox_PortA_Pin_Value4.isSelected()) {
+			pinAValue += 16;
+		}
+		if (checkbox_PortA_Pin_Value3.isSelected()) {
+			pinAValue += 8;
+		}
+		if (checkbox_PortA_Pin_Value2.isSelected()) {
+			pinAValue += 4;
+		}
+		if (checkbox_PortA_Pin_Value1.isSelected()) {
+			pinAValue += 2;
+		}
+		if (checkbox_PortA_Pin_Value0.isSelected()) {
+			pinAValue += 1;
+		}
+
+		// Port B -> Tris
+		if (checkbox_PortB_Tris_Value7.isSelected()) {
+			trisBValue += 128;
+		}
+		if (checkbox_PortB_Tris_Value6.isSelected()) {
+			trisBValue += 64;
+		}
+		if (checkbox_PortB_Tris_Value5.isSelected()) {
+			trisBValue += 32;
+		}
+		if (checkbox_PortB_Tris_Value4.isSelected()) {
+			trisBValue += 16;
+		}
+		if (checkbox_PortB_Tris_Value3.isSelected()) {
+			trisBValue += 8;
+		}
+		if (checkbox_PortB_Tris_Value2.isSelected()) {
+			trisBValue += 4;
+		}
+		if (checkbox_PortB_Tris_Value1.isSelected()) {
+			trisBValue += 2;
+		}
+		if (checkbox_PortB_Tris_Value0.isSelected()) {
+			trisBValue += 1;
+		}
+
+		// Port B -> Pin
+		if (checkbox_PortB_Pin_Value7.isSelected()) {
+			pinBValue += 128;
+		}
+		if (checkbox_PortB_Pin_Value6.isSelected()) {
+			pinBValue += 64;
+		}
+		if (checkbox_PortB_Pin_Value5.isSelected()) {
+			pinBValue += 32;
+		}
+		if (checkbox_PortB_Pin_Value4.isSelected()) {
+			pinBValue += 16;
+		}
+		if (checkbox_PortB_Pin_Value3.isSelected()) {
+			pinBValue += 8;
+		}
+		if (checkbox_PortB_Pin_Value2.isSelected()) {
+			pinBValue += 4;
+		}
+		if (checkbox_PortB_Pin_Value1.isSelected()) {
+			pinBValue += 2;
+		}
+		if (checkbox_PortB_Pin_Value0.isSelected()) {
+			pinBValue += 1;
+		}
+
+		RAM.setRamAll(pinAValue, 5); // pin a
+		RAM.setRamAll(pinBValue, 6); // pin b
+		RAM.setRamAll(trisAValue, 133); // Tris a
+		RAM.setRamAll(trisBValue, 134); // Tris b
+
+	}
+
 }

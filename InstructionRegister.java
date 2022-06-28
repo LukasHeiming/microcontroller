@@ -7,7 +7,8 @@ public class InstructionRegister {
     public static void nextInstruction()
     {
         currentInstruction = Flash.flash[PC.programCounter];
-        PC.inc();
+        
         InstructionDecoder.decode(currentInstruction);
+        PC.inc();
     }
 }

@@ -2,28 +2,46 @@
 
 public class Tris_Ra {
 
-    private static boolean[] Tris_A = {true,true,true,true,true};
-
 
     public static boolean getTrisA(int index) {
-        return Tris_A[index];
+        int bit = InstructionDecoder.getBit(RAM.ram[133], index);
+        if(bit == 0)
+        {
+            return false;
+        } else{
+            return true;
+        }
     }
 
-    public static void setTrisA(boolean value, int index) {
-        Tris_A[index] = value;
-        if(Tris_A[index] == false)
+    public static void updateTrisA()
+    {
+        int tris = RAM.getRamAll(133);
+
+        for(int i = 0; i<5; i++)
+        {
+            if(((tris >> i) & 1) == 0)
+            {
+                Port_RA.PortAStatus[i] = StatusEnum.OUTPUT;
+            }
+            else{
+                Port_RA.PortAStatus[i] = StatusEnum.INPUT;
+            }
+        }
+    }
+
+    public static void setTrisA(int value, int index) {
+        RAM.setRam(InstructionDecoder.modifyBit(RAM.getRam(133), index, value), 133);
+        if(value == 0)
         {
             Port_RA.PortAStatus[index] = StatusEnum.OUTPUT;
         }
-        else if(Tris_A[index] == true)
+        else if(value == 1)
         {
             Port_RA.PortAStatus[index] = StatusEnum.INPUT;
         }
     }
 
     public static void resetTrisA() {
-        for(int i = 0; i < Tris_A.length; i++){
-            Tris_A[i] = true;
-        }
+        RAM.ram[133] = 0;
     }
 }

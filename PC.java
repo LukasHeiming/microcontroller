@@ -1,17 +1,24 @@
 
 public class PC {
 
-    static int programCounter = 0;
-    private static int mask = 0b111111111;
+    public static int programCounter = 0;
+    private static int mask = 0b11111111;
 
     public static void inc() {
-        programCounter++;
-        if (programCounter == mask) {
+
+        
+
+        if ((programCounter & 0b11111111)== mask) {
             programCounter = 0;
         }
+        programCounter++;
+        PCL.setPCL(programCounter);
+        //int pclath = PCLATH.getPCLATHInt() << 8;
+        //programCounter = programCounter + pclath;
     }
 
     public static void resetProgrammCounter() {
         programCounter = 0;
+        System.out.println("Programmcounter reset.");
     }
 }

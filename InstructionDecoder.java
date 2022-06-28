@@ -1,3 +1,5 @@
+import java.math.BigInteger;
+
 import javax.naming.NoPermissionException;
 
 public class InstructionDecoder {
@@ -5,10 +7,31 @@ public class InstructionDecoder {
     public static String instructionToDecode;
 
     public static void decode(String instruction) {
+        System.out.println("");
+        // Ram einlesen Anfang
+        int counter = 0;
+        for (int i = 0; i < 32; i++) {
+            for (int j = 0; j < 8; j++) {
+                if (j != 0) {
+                    System.out.println("RAm inhalt: " + Integer
+                            .parseInt(Controller_UI.table_Panel_Fileregister_SFR_GPR.getValueAt(i, j).toString()));
+                    RAM.setRamAll(
+                            Integer.parseInt(Controller_UI.table_Panel_Fileregister_SFR_GPR.getValueAt(i, j).toString()),
+                            counter);
+                    counter += 1;
+                }
+            }
+        }
+
+        // Ram einlesen Ende
+
         int paraInt = 0;
         int para2Int = 0;
         boolean paraDone = false;
+        // boolean isHex = false;
+        boolean isDual = false;
         String parameter2 = "";
+        char paraChar;
         instructionToDecode = instruction;
         int index = instructionToDecode.indexOf(" ");
         String parameter = instructionToDecode.substring(index + 1, instructionToDecode.length());
@@ -29,6 +52,7 @@ public class InstructionDecoder {
                     parameter = "0" + parameter;
                 }
                 System.out.println("parameter after getting equ from RAM: " + parameter);
+                parameter = parameter + "h";
             }
         }
         if (parameter2 != "") {
@@ -44,30 +68,46 @@ public class InstructionDecoder {
             }
         }
 
-        if(parameter.equals("indirect")){
+        if (parameter.equals("indirect")) {
             paraInt = FSR_Register.getFsr();
+        }
+
+        if (parameter.contains("'") == true) {
+            parameter = parameter.replaceAll("'", "");
+            paraChar = parameter.charAt(0);
+            paraInt = (int) paraChar;
+            paraDone = true;
+        }
+
+        if (parameter.charAt(parameter.length() - 1) == 'B') {
+            parameter = parameter.substring(0, parameter.length() - 1);
+            paraInt = Integer.parseInt(parameter, 2);
+            isDual = true;
+            paraDone = true;
         }
 
         if (parameter.charAt(parameter.length() - 1) == 'h') {
             parameter = parameter.substring(0, parameter.length() - 1);
         }
 
-        switch (parameter.charAt(0)) {
-            case ('0'):
-            case ('1'):
-            case ('2'):
-            case ('3'):
-            case ('4'):
-            case ('5'):
-            case ('6'):
-            case ('7'):
-            case ('8'):
-            case ('9'):
-                parameter = "0x" + parameter;
-                break;
-            default:
+        if (isDual == false) {
+            switch (parameter.charAt(0)) {
+                case ('0'):
+                case ('1'):
+                case ('2'):
+                case ('3'):
+                case ('4'):
+                case ('5'):
+                case ('6'):
+                case ('7'):
+                case ('8'):
+                case ('9'):
+                    parameter = "0x" + parameter;
+                    break;
+                default:
 
-                break;
+                    break;
+            }
         }
 
         if (parameter2 != "") {
@@ -99,7 +139,7 @@ public class InstructionDecoder {
         if (instructionToDecode.equals("RETURN")) {
             paraDone = true;
         }
-        
+
         System.out.println("Aktueller Befehl: " + instructionToDecode);
         System.out.println("Aktueller Parameter: " + parameter);
         if (parameter2 != "") {
@@ -107,7 +147,7 @@ public class InstructionDecoder {
         }
 
         for (int i = 0; i < Flash.callMarksAndLines.length; i++) {
-            if (parameter.equals(Flash.callMarksAndLines[i][0])) {
+            if (parameter.equalsIgnoreCase(Flash.callMarksAndLines[i][0])) {
                 paraInt = Integer.parseInt(Flash.callMarksAndLines[i][1]);
                 paraDone = true;
                 System.out.println("paraInt als call: " + paraInt);
@@ -116,7 +156,7 @@ public class InstructionDecoder {
 
         if (paraDone == false) {
             for (int i = 0; i < Flash.jumpMarksAndLines.length; i++) {
-                if (parameter.equals(Flash.jumpMarksAndLines[i][0])) {
+                if (parameter.equalsIgnoreCase(Flash.jumpMarksAndLines[i][0])) {
                     paraInt = Integer.parseInt(Flash.jumpMarksAndLines[i][1]);
                     paraDone = true;
                     System.out.println("paraInt als jump: " + paraInt);
@@ -152,6 +192,7 @@ public class InstructionDecoder {
         switch (instructionToDecode) {
             case "ADDWF":
                 // todo
+                TMR0.countTimer(1);
                 if (para2Int == W_Register.getValue() && isW == false) {
                     para2Int = 0;
                 }
@@ -160,6 +201,7 @@ public class InstructionDecoder {
 
             case "ANDWF":
                 // todo
+                TMR0.countTimer(1);
                 if (para2Int == W_Register.getValue() && isW == false) {
                     para2Int = 0;
                 }
@@ -167,15 +209,18 @@ public class InstructionDecoder {
                 break;
 
             case "CLRF":
+                TMR0.countTimer(1);
                 CLRF(paraInt);
                 break;
 
             case "CLRW":
+                TMR0.countTimer(1);
                 CLRW();
                 break;
 
             case "COMF":
                 // todo
+                TMR0.countTimer(1);
                 if (para2Int == W_Register.getValue() && isW == false) {
                     para2Int = 0;
                 }
@@ -184,6 +229,7 @@ public class InstructionDecoder {
 
             case "DECF":
                 // todo
+                TMR0.countTimer(1);
                 if (para2Int == W_Register.getValue() && isW == false) {
                     para2Int = 0;
                 }
@@ -192,6 +238,7 @@ public class InstructionDecoder {
 
             case "DECFSZ":
                 // todo
+                TMR0.countTimer(1);
                 if (para2Int == W_Register.getValue() && isW == false) {
                     para2Int = 0;
                 }
@@ -200,6 +247,7 @@ public class InstructionDecoder {
 
             case "INCF":
                 // todo
+                TMR0.countTimer(1);
                 if (para2Int == W_Register.getValue() && isW == false) {
                     para2Int = 0;
                 }
@@ -208,6 +256,7 @@ public class InstructionDecoder {
 
             case "INCFSZ":
                 // todo
+                TMR0.countTimer(1);
                 if (para2Int == W_Register.getValue() && isW == false) {
                     para2Int = 0;
                 }
@@ -216,6 +265,7 @@ public class InstructionDecoder {
 
             case "IORWF":
                 // todo
+                TMR0.countTimer(1);
                 if (para2Int == W_Register.getValue() && isW == false) {
                     para2Int = 0;
                 }
@@ -224,6 +274,7 @@ public class InstructionDecoder {
 
             case "MOVF":
                 // todo
+                TMR0.countTimer(1);
                 if (para2Int == W_Register.getValue() && isW == false) {
                     para2Int = 0;
                 }
@@ -232,15 +283,22 @@ public class InstructionDecoder {
 
             case "MOVWF":
                 // todo
+                TMR0.countTimer(1);
+                if (paraInt == 1 && StatusReg.getRP0() == 0) {
+                    TMR0.vorteilCounter = 0;
+                }
+
                 MOVWF(paraInt);
                 break;
 
             case "NOP":
+                TMR0.countTimer(1);
                 NOP();
                 break;
 
             case "RLF":
                 // todo
+                TMR0.countTimer(1);
                 if (para2Int == W_Register.getValue() && isW == false) {
                     para2Int = 0;
                 }
@@ -249,6 +307,7 @@ public class InstructionDecoder {
 
             case "RRF":
                 // todo
+                TMR0.countTimer(1);
                 if (para2Int == W_Register.getValue() && isW == false) {
                     para2Int = 0;
                 }
@@ -257,6 +316,7 @@ public class InstructionDecoder {
 
             case "SUBWF":
                 // todo
+                TMR0.countTimer(1);
                 if (para2Int == W_Register.getValue() && isW == false) {
                     para2Int = 0;
                 }
@@ -265,6 +325,7 @@ public class InstructionDecoder {
 
             case "SWAPF":
                 // todo
+                TMR0.countTimer(1);
                 if (para2Int == W_Register.getValue() && isW == false) {
                     para2Int = 0;
                 }
@@ -273,6 +334,7 @@ public class InstructionDecoder {
 
             case "XORWF":
                 // todo
+                TMR0.countTimer(1);
                 if (para2Int == W_Register.getValue() && isW == false) {
                     para2Int = 0;
                 }
@@ -281,6 +343,7 @@ public class InstructionDecoder {
 
             case "BCF":
                 // todo
+                TMR0.countTimer(1);
                 if (para2Int == W_Register.getValue() && isW == false) {
                     para2Int = 0;
                 }
@@ -288,14 +351,17 @@ public class InstructionDecoder {
                 break;
 
             case "BSF":
+                TMR0.countTimer(1);
                 if (para2Int == W_Register.getValue() && isW == false) {
                     para2Int = 0;
                 }
+                System.out.println("BSF: paraInt -> " + paraInt + ", para2Int -> " + para2Int);
                 BSF(paraInt, para2Int);
                 break;
 
             case "BTFSC":
                 // todo
+                TMR0.countTimer(1);
                 if (para2Int == W_Register.getValue() && isW == false) {
                     para2Int = 0;
                 }
@@ -304,6 +370,7 @@ public class InstructionDecoder {
 
             case "BTFSS":
                 // todo
+                TMR0.countTimer(1);
                 if (para2Int == W_Register.getValue() && isW == false) {
                     para2Int = 0;
                 }
@@ -311,54 +378,67 @@ public class InstructionDecoder {
                 break;
 
             case "ADDLW":
+                TMR0.countTimer(1);
                 ADDLW(paraInt);
                 break;
 
             case "ANDLW":
+                TMR0.countTimer(1);
                 ANDLW(paraInt);
                 break;
 
             case "CALL":
+                TMR0.countTimer(2);
                 CALL(paraInt);
                 break;
 
             case "CLRWDT":
+                TMR0.countTimer(1);
                 CLRWDT();
                 break;
 
             case "GOTO":
+                TMR0.countTimer(2);
                 GOTO(paraInt);
                 break;
 
             case "IORLW":
+                TMR0.countTimer(1);
                 IORLW(paraInt);
                 break;
 
             case "MOVLW":
+                TMR0.countTimer(1);
                 MOVLW(paraInt);
                 break;
 
             case "RETFIE":
+                TMR0.countTimer(2);
                 RETFIE();
                 break;
 
             case "RETLW":
+                TMR0.countTimer(2);
                 RETLW(paraInt);
                 break;
 
             case "RETURN":
+                TMR0.countTimer(2);
                 RETURN();
                 break;
 
             case "SLEEP":
+                TMR0.countTimer(1);
                 SLEEP();
                 break;
 
             case "SUBLW":
+                TMR0.countTimer(1);
                 SUBLW(paraInt);
                 break;
 
             case "XORLW":
+                TMR0.countTimer(1);
                 XORLW(paraInt);
                 break;
 
@@ -377,10 +457,10 @@ public class InstructionDecoder {
         }
 
         figureOutDCFlag(RAM.getRam(f), true);
-        
+
         System.out.println("D ist: " + d);
         if (d == 0) {
-            System.out.println("W Register: " + W_Register.getValue() + " + RAM: " + RAM.getRam((f)) );
+            System.out.println("W Register: " + W_Register.getValue() + " + RAM: " + RAM.getRam((f)));
             W_Register.setValue(W_Register.getValue() + RAM.getRam(f));
             if (W_Register.getValue() == 0) {
                 StatusReg.setZeroFlag(1);
@@ -478,11 +558,14 @@ public class InstructionDecoder {
             W_Register.setValue(RAM.getRam(f) - 1);
             if (W_Register.getValue() == 0) {
                 PC.inc();
+                TMR0.countTimer(1);
+
             }
         } else {
             RAM.setRam(RAM.getRam(f) - 1, f);
             if (RAM.getRam(f) == 0) {
                 PC.inc();
+                TMR0.countTimer(1);
             }
         }
         return;
@@ -511,11 +594,13 @@ public class InstructionDecoder {
         if (d == 0) {
             W_Register.setValue(RAM.getRam(f) + 1);
             if (W_Register.getValue() == 0) {
+                TMR0.countTimer(1);
                 PC.inc();
             }
         } else {
             RAM.setRam(RAM.getRam(f) + 1, f);
             if (RAM.getRam(f) == 0) {
+                TMR0.countTimer(1);
                 PC.inc();
             }
         }
@@ -557,8 +642,8 @@ public class InstructionDecoder {
     }
 
     public static void MOVWF(int f) {
-        System.out.println("Wert von f:" + f);
-        System.out.println("W: " + W_Register.getValue());
+        // System.out.println("Wert von f in MOVWF:" + f);
+        // System.out.println("W: " + W_Register.getValue());
         System.out.println(RAM.setRam(W_Register.getValue(), f));
         return;
     }
@@ -571,7 +656,7 @@ public class InstructionDecoder {
         // int temp = RAM.getCarryFlag();
         int temp = StatusReg.getCarryFlag();
         int temp1 = ((RAM.getRam(f) & 0b10000000) >> 7);
-        System.out.println("temp1: " + temp1);
+        // System.out.println("temp1: " + temp1);
         StatusReg.setCarryFlag(temp1);
         if (d == 0) {
             W_Register.setValue((RAM.getRam(f) << 1) + temp);
@@ -647,21 +732,26 @@ public class InstructionDecoder {
     // BIT-ORIENTED FILE REGISTER
     // OPERATIONS-------------------------------------------------------------
     public static void BCF(int f, int b) {
-        RAM.setRam(modifyBit(RAM.getRam(f), b, 0), f);
+        RAM.setRamAll(modifyBit(RAM.getRam(f), b, 0), f);
     }
 
     public static void BSF(int f, int b) {
-        RAM.setRam(modifyBit(RAM.getRam(f), b, 1), f);
+        RAM.setRamAll(modifyBit(RAM.getRam(f), b, 1), f);
     }
 
     public static void BTFSC(int f, int b) {
         if (((RAM.getRam(f) >> b) & 1) == 0) {
+            TMR0.countTimer(1);
             PC.inc();
         }
     }
 
     public static void BTFSS(int f, int b) {
+        System.out.println("BTFSS: " + RAM.getRam(f));
+        System.out.println(((RAM.getRam(f) >> b) & 1) == 1);
         if (((RAM.getRam(f) >> b) & 1) == 1) {
+            System.out.println("SPRINGEN");
+            TMR0.countTimer(1);
             PC.inc();
         }
     }
@@ -699,7 +789,11 @@ public class InstructionDecoder {
     public static void CALL(int k) {
         // need stack
         System.out.println("This is k in Call method: " + (PC.programCounter));
-        Stack.push(PC.programCounter);
+        Stack.push(PC.programCounter + 1);
+
+        // CALL PCLATH
+        // int callPCL = (PCL.getPCLInt() & 0b11000) << 8;
+        // k = k & callPCL;
         GOTO(k);
         // unfinished
         // Normalerweise ist k eine Marke. Dadurch wird dann ein Bezeichner und keine
@@ -711,13 +805,14 @@ public class InstructionDecoder {
     }
 
     public static void CLRWDT() {
-        // Watchdog Gedöns
+        Watchdog.resetWatchdogTimer();
     }
 
     public static void GOTO(int k) {
-        // need stack
-        // unfinished
-        PC.programCounter = k;
+        // GOTO PCLATH
+        // int callPCL = (PCL.getPCLInt() & 0b11000) << 8;
+        // k = k & callPCL;
+        PC.programCounter = k - 1;
     }
 
     public static void IORLW(int k) {
@@ -736,6 +831,8 @@ public class InstructionDecoder {
 
     public static void RETFIE() {
         // Interrupt Gedöns
+        Intcon.setGIE(1);
+        GOTO(Stack.pop());
     }
 
     public static void RETLW(int k) {
@@ -784,96 +881,104 @@ public class InstructionDecoder {
         return (n & ~mask) | ((b << p) & mask);
     }
 
-    static void figureOutDCFlag(int f, boolean addition){
+    public static int getBit(int n, int b) {
+        return (n >> b) & 1;
+    }
+
+    static void figureOutDCFlag(int f, boolean addition) {
         String binaryNumber1 = "";
         binaryNumber1 = Integer.toBinaryString(f);
         String binaryNumber2 = "";
         binaryNumber2 = Integer.toBinaryString(W_Register.getValue());
 
-        while(binaryNumber1.length() < 4){
+        while (binaryNumber1.length() < 4) {
             binaryNumber1 = "0" + binaryNumber1;
         }
 
-        while(binaryNumber1.length() > 4){
+        while (binaryNumber1.length() > 4) {
             binaryNumber1 = binaryNumber1.substring(1, binaryNumber1.length());
         }
 
-        while(binaryNumber2.length() < 4){
+        while (binaryNumber2.length() < 4) {
             binaryNumber2 = "0" + binaryNumber2;
         }
 
-        while(binaryNumber2.length() > 4){
+        while (binaryNumber2.length() > 4) {
             binaryNumber2 = binaryNumber2.substring(1, binaryNumber2.length());
         }
 
         System.out.println("binaryNumber1 (only last 4 Bits) - Integer.toBinaryString(" + f + "): " + binaryNumber1);
-        System.out.println("binaryNumber2 (only last 4 Bits) - Integer.toBinaryString(" + W_Register.getValue() + "): " + binaryNumber2);
+        System.out.println("binaryNumber2 (only last 4 Bits) - Integer.toBinaryString(" + W_Register.getValue() + "): "
+                + binaryNumber2);
 
-        if(binaryNumber1.charAt(0) == '1' && binaryNumber2.charAt(0) == '1'){
-            if(addition == true){
+        if (binaryNumber1.charAt(0) == '1' && binaryNumber2.charAt(0) == '1') {
+            if (addition == true) {
                 StatusReg.setDigitCarryFlag(1);
                 System.out.println("DigitCarryFlag wurde gesetzt aufgrund charAt(0)");
-            }else{
+            } else {
                 StatusReg.setDigitCarryFlag(0);
                 System.out.println("DigitCarryFlag wurde nicht gesetzt aufgrund charAt(0)");
             }
-        }else if(binaryNumber1.charAt(0) == '0' && binaryNumber2.charAt(0) == '0'){
-            if(addition == true){
+        } else if (binaryNumber1.charAt(0) == '0' && binaryNumber2.charAt(0) == '0') {
+            if (addition == true) {
                 StatusReg.setDigitCarryFlag(0);
                 System.out.println("DigitCarryFlag wurde nicht gesetzt aufgrund charAt(0)");
-            }else{
+            } else {
                 StatusReg.setDigitCarryFlag(1);
                 System.out.println("DigitCarryFlag wurde gesetzt aufgrund charAt(0)");
             }
-        }else if(binaryNumber1.charAt(1) == '1' && binaryNumber2.charAt(1) == '1'){
-            if(addition == true){
+        } else if (binaryNumber1.charAt(1) == '1' && binaryNumber2.charAt(1) == '1') {
+            if (addition == true) {
                 StatusReg.setDigitCarryFlag(1);
                 System.out.println("DigitCarryFlag wurde gesetzt aufgrund charAt(1)");
-            }else{
+            } else {
                 StatusReg.setDigitCarryFlag(0);
                 System.out.println("DigitCarryFlag wurde nicht gesetzt aufgrund charAt(1)");
             }
-        }else if(binaryNumber1.charAt(1) == '0' && binaryNumber2.charAt(1) == '0'){
-            if(addition == true){
+        } else if (binaryNumber1.charAt(1) == '0' && binaryNumber2.charAt(1) == '0') {
+            if (addition == true) {
                 StatusReg.setDigitCarryFlag(0);
                 System.out.println("DigitCarryFlag wurde nicht gesetzt aufgrund charAt(1)");
-            }else{
+            } else {
                 StatusReg.setDigitCarryFlag(1);
                 System.out.println("DigitCarryFlag wurde gesetzt aufgrund charAt(1)");
             }
-        }else if(binaryNumber1.charAt(2) == '1' && binaryNumber2.charAt(2) == '1'){
-            if(addition == true){
+        } else if (binaryNumber1.charAt(2) == '1' && binaryNumber2.charAt(2) == '1') {
+            if (addition == true) {
                 StatusReg.setDigitCarryFlag(1);
                 System.out.println("DigitCarryFlag wurde gesetzt aufgrund charAt(2)");
-            }else{
+            } else {
                 StatusReg.setDigitCarryFlag(0);
                 System.out.println("DigitCarryFlag wurde nicht gesetzt aufgrund charAt(2)");
             }
-        }else if(binaryNumber1.charAt(2) == '0' && binaryNumber2.charAt(2) == '0'){
-            if(addition == true){
+        } else if (binaryNumber1.charAt(2) == '0' && binaryNumber2.charAt(2) == '0') {
+            if (addition == true) {
                 StatusReg.setDigitCarryFlag(0);
                 System.out.println("DigitCarryFlag wurde nicht gesetzt aufgrund charAt(2)");
-            }else{
+            } else {
                 StatusReg.setDigitCarryFlag(1);
                 System.out.println("DigitCarryFlag wurde gesetzt aufgrund charAt(2)");
             }
-        }else if(binaryNumber1.charAt(3) == '1' && binaryNumber2.charAt(3) == '1'){
-            if(addition == true){
+        } else if (binaryNumber1.charAt(3) == '1' && binaryNumber2.charAt(3) == '1') {
+            if (addition == true) {
                 StatusReg.setDigitCarryFlag(1);
                 System.out.println("DigitCarryFlag wurde gesetzt aufgrund charAt(3)");
-            }else{
+            } else {
                 StatusReg.setDigitCarryFlag(0);
                 System.out.println("DigitCarryFlag wurde nicht gesetzt aufgrund charAt(3)");
             }
-        }else{
-            if(addition == true){
+        } else {
+            if (addition == true) {
                 StatusReg.setDigitCarryFlag(0);
                 System.out.println("DigitCarryFlag wurde nicht gesetzt aufgrund charAt(3)");
-            }else{
+            } else {
                 StatusReg.setDigitCarryFlag(1);
                 System.out.println("DigitCarryFlag wurde gesetzt aufgrund charAt(3)");
             }
         }
     }
-}
 
+    public String toHex(String arg) {
+        return String.format("%040x", new BigInteger(1, arg.getBytes(/* YOUR_CHARSET? */)));
+    }
+}

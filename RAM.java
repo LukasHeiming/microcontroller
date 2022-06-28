@@ -3,7 +3,7 @@
 
 public class RAM {
     
-    private static int[] ram = new int[256];//12 - 79  140-207  SFR: 0 - 11  128 - 139
+    public static int[] ram = new int[256];//12 - 79  140-207  SFR: 0 - 11  128 - 139
     private static int mask = 0b11111111;
     public static int[] ramUsage = new int[256];
     //Bank 0: 0 - 79
@@ -12,8 +12,8 @@ public class RAM {
 
     public static int getRam(int index)
     {
-        if(index >= 0 && index <= 79)
-        {
+        //if(index >= 0 && index <= 79)
+        ///{
             if(StatusReg.getRP0() == 0 && StatusReg.getRP1() == 0  || StatusReg.getRP0() == 0 && StatusReg.getRP1() == 1)
             {
                 return ram[index];
@@ -22,12 +22,34 @@ public class RAM {
             {
                 return ram[index+128];
             }
-        }
+        //}
         return -1;
+    }
+
+    public static int getRamAll(int index)
+    {
+        if(index < 256)
+        {
+            return ram[index];
+        }
+        else return 0;
+    }
+
+    public static void setRamAll(int value, int index)
+    {
+        if(index < 256)
+        {   
+            ram[index] = value % 256;
+        }
     }
 
     public static int setRam(int value, int index)
     {
+        if(index == 2 || index == 82){
+            PC.programCounter = value;
+            PC.programCounter = PC.programCounter + (PCLATH.getPCLATHInt() << 8);
+           
+        }
         if(index <= 79)
         {
             if(StatusReg.getRP0() == 0 && StatusReg.getRP1() == 0  || StatusReg.getRP0() == 0 && StatusReg.getRP1() == 1)
@@ -44,21 +66,6 @@ public class RAM {
             }
         }
         return -1;
-    }
-
-    public static int setRegister(int index, int value, int rp0)
-    {
-        if(rp0 == 0)
-        {
-        ram[index] = value;
-        return 1;
-        }
-        if(rp0 == 1)
-        {
-            ram[index+128] = value;
-            return 1;
-        }
-        return 0;
     }
 
     public static int getRamHex(int index)

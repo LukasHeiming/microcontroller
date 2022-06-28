@@ -10,15 +10,15 @@ public class Flash {
 
     static String[] flash = new String[1024];
     static List<String> listMatches = new ArrayList<String>();
-    static int[] firstCommandLine = new int[100];
-    static String[][] jumpMarksAndLines = new String[8][2];
-    static String[][] callMarksAndLines = new String[8][2];
+    static int[] firstCommandLine = new int[1024];
+    static String[][] jumpMarksAndLines = new String[20][2];
+    static String[][] callMarksAndLines = new String[20][2];
     static String[][] equValues = new String[42][2];
     static int commandAmount = 0;
 
     public static String readFile(String fileName) {
         // reset vars
-
+        StatusReg.resetStatusReg();
         for (int i = 0; i < 256; i++) {
             if (i >= 0 && i <= 11 || i >= 128 && i <= 139) {
                 RAM.ramUsage[i] = 1;
@@ -52,7 +52,7 @@ public class Flash {
             }
         }
         commandAmount = 0;
-
+        // reset vars ende
         System.out.println("Entered readFile");
         listMatches.clear();
         String sProgram = "";
@@ -83,11 +83,12 @@ public class Flash {
                 }
                 // jumpmarken abspeichern (goto) oder unterprugramm rücksprungmarken mit
                 // nächstem befehl in der nächsten zeile
-                if (line.matches("^[ ]+[0-9]+[ ]+ [A-Za-z0-9]+[ ][ ]+") == true) {
+                if (line.matches("^[ ]+[0-9]+[ ]+ [A-Za-z0-9]+[:]?[ ][ ]+") == true) {
                     String jumpmark = line.replace(" ", "");
-                    jumpmark = jumpmark.substring(5);
+                    jumpmark = jumpmark.substring(5).replace(":", "");
                     jumpMarksAndLines[jumpMarksCounter][0] = jumpmark;
                     jumpMarksAndLines[jumpMarksCounter][1] = Integer.toString(commandAmount);
+                    System.out.println("jumpMarksAndLines[" + jumpMarksCounter + "][1]: " + jumpmark);
                     System.out.println("jumpMarksAndLines[" + jumpMarksCounter + "][1]: " + commandAmount);
                     jumpMarksCounter++;
                 }
@@ -139,7 +140,7 @@ public class Flash {
         int index = sProgram.indexOf("org 0");
         sProgramEdited = sProgram.substring(index + 5, sProgram.length() - 1);
         sProgramEdited = sProgramEdited.replaceAll("[;].*", "");
-        Pattern p = Pattern.compile("([a-z]+[ ][0-9a-z,]+)|return|nop|clrw|clrwdt|sleep|retfie");
+        Pattern p = Pattern.compile("([a-z]+[ ][0-9a-zA-Z,']+)|return|nop|clrw|clrwdt|sleep|retfie");
         Matcher m = p.matcher(sProgramEdited);
         while (m.find()) {
             listMatches.add(m.group());

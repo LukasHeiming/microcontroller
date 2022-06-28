@@ -4,7 +4,7 @@ public class Stack {
     static int stackPointer = 0;
 
     public static int push(int value) {
-        if (stackPointer == 7) {
+        if (stackPointer == 8) {
             return -1;
         }
         stack[stackPointer] = value;

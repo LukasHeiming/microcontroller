@@ -10,89 +10,83 @@ public class Option {
     //1: PS1
     //0: PS0 
 
-    public static int[] optionReg = {1,1,1,1,1,1,1,1};
 
     public static String getOption() {
-        int iOption = 0;
-       
-         for (int i = 0; i < optionReg.length; i++) {
-                iOption = iOption + optionReg[i] * (int)Math.pow((double)2,(double)i);     
+        if(StatusReg.getRP0() == 0)
+        {
+        return Integer.toHexString(RAM.getRam(129));
         }
-        
-        String sOption = Integer.toHexString(iOption).toUpperCase();    
-        //sOption = sOption.replace("0x", "");
-        return sOption;
+        else{
+            return Integer.toHexString(RAM.getRam(1));
+        }
     }
 
-    
     public static int getRBPU() {
-        return optionReg[7];
+        return(InstructionDecoder.getBit(RAM.getRamAll(129), 7));
     }
 
     public static void setRBPU(int rBPU) {
-        optionReg[7] = rBPU;
+        RAM.setRamAll(InstructionDecoder.modifyBit(RAM.getRamAll(129), 7, rBPU), 129);
     }
 
     public static int getINTDEG() {
-        return optionReg[6];
+        return(InstructionDecoder.getBit(RAM.getRamAll(129), 6));
     }
 
     public static void setINTDEG(int iNTDEG) {
-        optionReg[6] = iNTDEG;
+        RAM.setRamAll(InstructionDecoder.modifyBit(RAM.getRamAll(129), 6, iNTDEG), 129);
     }
 
     public static int getT0CS() {
-        return optionReg[5];
+        return(InstructionDecoder.getBit(RAM.getRamAll(129), 5));
     }
 
     public static void setT0CS(int t0cs) {
-        optionReg[5] = t0cs;
+        RAM.setRamAll(InstructionDecoder.modifyBit(RAM.getRamAll(129), 5, t0cs), 129);
     }
 
     public static int getT0SE() {
-        return optionReg[4];
+        return(InstructionDecoder.getBit(RAM.getRamAll(129), 4));
     }
 
     public static void setT0SE(int t0se) {
-        optionReg[4] = t0se;
+        RAM.setRamAll(InstructionDecoder.modifyBit(RAM.getRamAll(129), 4, t0se), 129);
     }
 
     public static int getPSA() {
-        return optionReg[3];
+        return(InstructionDecoder.getBit(RAM.getRamAll(129), 3));
     }
 
     public static void setPSA(int pSA) {
-        optionReg[3] = pSA;
+        RAM.setRamAll(InstructionDecoder.modifyBit(RAM.getRamAll(129), 3, pSA), 129);
     }
 
     public static int getPS2() {
-        return optionReg[2];
+        return(InstructionDecoder.getBit(RAM.getRamAll(129), 2));
     }
 
     public static void setPS2(int pS2) {
-        optionReg[2] = pS2;
+        RAM.setRamAll(InstructionDecoder.modifyBit(RAM.getRamAll(129), 2, pS2), 129);
     }
 
     public static int getPS1() {
-        return optionReg[1];
+        return(InstructionDecoder.getBit(RAM.getRamAll(129), 1));
     }
 
     public static void setPS1(int pS1) {
-        optionReg[1] = pS1;
+        RAM.setRamAll(InstructionDecoder.modifyBit(RAM.getRamAll(129), 1, pS1), 129);
     }
 
     public static int getPS0() {
-        return optionReg[0];
+        return(InstructionDecoder.getBit(RAM.getRamAll(129), 0));
     }
 
     public static void setPS0(int pS0) {
-        optionReg[0] = pS0;
+        RAM.setRamAll(InstructionDecoder.modifyBit(RAM.getRamAll(129), 0, pS0), 129);
     }
 
     public static void resetOption() {
-        for(int i = 0; i < optionReg.length; i++){
-            optionReg[0] = 1;
-        }
+        RAM.ram[129] = 255; 
     }
 
     
