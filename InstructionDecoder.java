@@ -11,18 +11,17 @@ public class InstructionDecoder {
         // Ram einlesen Anfang
         int counter = 0;
         for (int i = 0; i < 32; i++) {
-            for (int j = 0; j < 8; j++) {
+            for (int j = 0; j < 9; j++) {
                 if (j != 0) {
-                    System.out.println("RAm inhalt: " + Integer
-                            .parseInt(Controller_UI.table_Panel_Fileregister_SFR_GPR.getValueAt(i, j).toString()));
+                    //System.out.println("RAm inhalt: " + Integer
+                    //        .parseInt(Controller_UI.table_Panel_Fileregister_SFR_GPR.getValueAt(i, j).toString(),16) + " at position " + counter + " i: "+ i + " j: " + j);
                     RAM.setRamAll(
-                            Integer.parseInt(Controller_UI.table_Panel_Fileregister_SFR_GPR.getValueAt(i, j).toString()),
+                            Integer.parseInt(Controller_UI.table_Panel_Fileregister_SFR_GPR.getValueAt(i, j).toString(),16),
                             counter);
                     counter += 1;
                 }
             }
         }
-
         // Ram einlesen Ende
 
         int paraInt = 0;
