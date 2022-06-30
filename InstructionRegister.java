@@ -9,6 +9,10 @@ public class InstructionRegister {
         currentInstruction = Flash.flash[PC.programCounter];
         
         InstructionDecoder.decode(currentInstruction);
-        PC.inc();
+        if(!currentInstruction.contains("goto") && !currentInstruction.contains("call") && !currentInstruction.contains("retlw") && !currentInstruction.contains("return") && !currentInstruction.contains("retfie")){
+            PC.inc();
+        }else{
+            System.out.println("PC.inc() wurde übersprungen da letzer Befehl ein Call oder Goto war.");
+        }
     }
 }

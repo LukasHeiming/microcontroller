@@ -18,20 +18,18 @@ public class Flash {
 
     public static String readFile(String fileName) {
         // reset vars
-        StatusReg.resetStatusReg();
-        for (int i = 0; i < 256; i++) {
-            if (i >= 0 && i <= 11 || i >= 128 && i <= 139) {
-                RAM.ramUsage[i] = 1;
-            }
+       
 
-            if (i > 11 && i <= 79 || i >= 140 && i <= 207) {
-                RAM.ramUsage[i] = 0;
-            }
-
-            if (i >= 80 && i <= 127 || i >= 208 && i <= 255) {
-                RAM.ramUsage[i] = -1;
-            }
+        for(int i = 0; i < 256;i++)
+        {
+            RAM.setRamAll(0, i);
         }
+
+        Option.resetOption();
+        StatusReg.resetStatusReg();
+        Tris_Ra.resetTrisA();
+        Tris_RB.resetTrisB();
+        Intcon.resetIntcon();
 
         for (int i = 0; i < 1024; i++) {
             flash[i] = "";

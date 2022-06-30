@@ -455,16 +455,13 @@ public class Controller_UI extends Thread implements ActionListener {
 			public void actionPerformed(ActionEvent e) {
 				try {
 
-					for(int i = 0; i < counterBreakpoints;i++)
-					{
-						if(breakpoints[i] == Integer.parseInt(textField_Breakpoint.getText()))
-						{
+					for (int i = 0; i < counterBreakpoints; i++) {
+						if (breakpoints[i] == Integer.parseInt(textField_Breakpoint.getText())) {
 							Highlight[] hl = textArea_Panel_ProgrammLSTDatei.getHighlighter().getHighlights();
-							textArea_Panel_ProgrammLSTDatei.getHighlighter().removeHighlight(hl[i+1]);
+							textArea_Panel_ProgrammLSTDatei.getHighlighter().removeHighlight(hl[i + 1]);
 							counterBreakpoints = counterBreakpoints - 1;
-							for(int j = 0; j < 127 - i; i++)
-							{
-								breakpoints[i] = breakpoints[i+1];
+							for (int j = 0; j < 127 - i; i++) {
+								breakpoints[i] = breakpoints[i + 1];
 							}
 							uiUpdate();
 							return;
@@ -1142,13 +1139,19 @@ public class Controller_UI extends Thread implements ActionListener {
 		panel_Bedienelemente.add(btn_Bedienelemente_Reset);
 		btn_Bedienelemente_Reset.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				W_Register.resetValue();
 				// lbl_SFR_W_PCL_Value
 				// lbl_SFR_W_PCLATH_Value
-				PC.resetProgrammCounter();
-				StatusReg.resetStatusReg();
+
+				for (int i = 0; i < 256; i++) {
+
+					RAM.setRamAll(0, i);
+
+				}
 				// lbl_SFR_W_FSR_Value
 				Option.resetOption();
+				PC.resetProgrammCounter();
+				W_Register.resetValue();
+				StatusReg.resetStatusReg();
 				// lbl_SFR_W_Vorteiler_Value
 				// lbl_SFR_W_Timer0_Value
 				Intcon.resetIntcon();
@@ -1157,6 +1160,7 @@ public class Controller_UI extends Thread implements ActionListener {
 				Port_RA.resetPort_RA();
 				Tris_RB.resetTrisB();
 				Port_RB.resetPort_RB();
+				counterBreakpoints = 0;
 				textArea_Panel_ProgrammLSTDatei.getHighlighter().removeAllHighlights();
 				try {
 					textArea_Panel_ProgrammLSTDatei.getHighlighter().addHighlight(
@@ -1250,11 +1254,39 @@ public class Controller_UI extends Thread implements ActionListener {
 
 				value = RAM.getRamAll((i * 8) + j);
 
-				if (value == -1) {
-					table_Panel_Fileregister_SFR_GPR.setValueAt("x", i, j + 1);
+				if (i == 16 && j + 1 == 1) {
+					// Indirect
+					table_Panel_Fileregister_SFR_GPR.setValueAt(Integer.toHexString(RAM.getRamAll(0)).toUpperCase(), i,
+							j + 1);
+				} else if (i == 16 && j + 1 == 3) {
+					// PCL
+					table_Panel_Fileregister_SFR_GPR.setValueAt(Integer.toHexString(RAM.getRamAll(2)).toUpperCase(), i,
+							j + 1);
+				} else if (i == 16 && j + 1 == 4) {
+					// STATUS
+					table_Panel_Fileregister_SFR_GPR.setValueAt(Integer.toHexString(RAM.getRamAll(3)).toUpperCase(), i,
+							j + 1);
+				} else if (i == 0 && j + 1 == 5) {
+					// FSR
+					table_Panel_Fileregister_SFR_GPR.setValueAt(Integer.toHexString(RAM.getRamAll(4)).toUpperCase(), i,
+							j + 1);
+				} else if (i == 0 && j == 12) {
+					// PCLATH
+					table_Panel_Fileregister_SFR_GPR.setValueAt(Integer.toHexString(RAM.getRamAll(10)).toUpperCase(), i,
+							j + 1);
+				} else if (i == 0 && j == 13) {
+					// INTCON
+					// table_Panel_Fileregister_SFR_GPR.getValueAt(i, j).toString(), 16), 139);
+					table_Panel_Fileregister_SFR_GPR.setValueAt(Integer.toHexString(RAM.getRamAll(11)).toUpperCase(), i,
+							j + 1);
 				} else {
-					table_Panel_Fileregister_SFR_GPR.setValueAt(Integer.toHexString(value).toUpperCase(), i, j + 1);
 
+					if (value == -1) {
+						table_Panel_Fileregister_SFR_GPR.setValueAt("x", i, j + 1);
+					} else {
+						table_Panel_Fileregister_SFR_GPR.setValueAt(Integer.toHexString(value).toUpperCase(), i, j + 1);
+
+					}
 				}
 			}
 
@@ -1301,26 +1333,45 @@ public class Controller_UI extends Thread implements ActionListener {
 		lbl_Stack_0008.setText(Integer.toHexString(Stack.getValueUI(7)));
 
 		// Port A, Tris, Pin
+		//System.out.println("setzte Port a tris 4 auf: " + Tris_Ra.getTrisA(4));
 		checkbox_PortA_Tris_Value4.setSelected(Tris_Ra.getTrisA(4));
+		//System.out.println("setzte Port a tris 3 auf: " + Tris_Ra.getTrisA(3));
 		checkbox_PortA_Tris_Value3.setSelected(Tris_Ra.getTrisA(3));
+		//System.out.println("setzte Port a tris 2 auf: " + Tris_Ra.getTrisA(2));
 		checkbox_PortA_Tris_Value2.setSelected(Tris_Ra.getTrisA(2));
+		//System.out.println("setzte Port a tris 1 auf: " + Tris_Ra.getTrisA(1));
 		checkbox_PortA_Tris_Value1.setSelected(Tris_Ra.getTrisA(1));
+		//System.out.println("setzte Port a tris 0 auf: " + Tris_Ra.getTrisA(0));
 		checkbox_PortA_Tris_Value0.setSelected(Tris_Ra.getTrisA(0));
+		//System.out.println("setzte Port a Pin 4 auf: " + Port_RA.getPortRA(4));
 		checkbox_PortA_Pin_Value4.setSelected(Port_RA.getPortRA(4));
+		//System.out.println("setzte Port a Pin 3 auf: " + Port_RA.getPortRA(3));
 		checkbox_PortA_Pin_Value3.setSelected(Port_RA.getPortRA(3));
+		//System.out.println("setzte Port a Pin 2 auf: " + Port_RA.getPortRA(2));
 		checkbox_PortA_Pin_Value2.setSelected(Port_RA.getPortRA(2));
+		//System.out.println("setzte Port a Pin 1 auf: " + Port_RA.getPortRA(1));
 		checkbox_PortA_Pin_Value1.setSelected(Port_RA.getPortRA(1));
+		//System.out.println("setzte Port a Pin 0 auf: " + Port_RA.getPortRA(0));
 		checkbox_PortA_Pin_Value0.setSelected(Port_RA.getPortRA(0));
 
 		// Port B, Tris, Pin
+		//System.out.println("setzte Tris b Pin 7 auf: " + Tris_RB.getTris_B(7));
 		checkbox_PortB_Tris_Value7.setSelected(Tris_RB.getTris_B(7));
+		//System.out.println("setzte Tris b Pin 6 auf: " + Tris_RB.getTris_B(6));
 		checkbox_PortB_Tris_Value6.setSelected(Tris_RB.getTris_B(6));
+		//System.out.println("setzte Tris b Pin 5 auf: " + Tris_RB.getTris_B(5));
 		checkbox_PortB_Tris_Value5.setSelected(Tris_RB.getTris_B(5));
+		//System.out.println("setzte Tris b Pin 4 auf: " + Tris_RB.getTris_B(4));
 		checkbox_PortB_Tris_Value4.setSelected(Tris_RB.getTris_B(4));
+		//System.out.println("setzte Tris b Pin 3 auf: " + Tris_RB.getTris_B(3));
 		checkbox_PortB_Tris_Value3.setSelected(Tris_RB.getTris_B(3));
+		//System.out.println("setzte Tris b Pin 2 auf: " + Tris_RB.getTris_B(2));
 		checkbox_PortB_Tris_Value2.setSelected(Tris_RB.getTris_B(2));
+		//System.out.println("setzte Tris b Pin 1 auf: " + Tris_RB.getTris_B(1));
 		checkbox_PortB_Tris_Value1.setSelected(Tris_RB.getTris_B(1));
+		//System.out.println("setzte Tris b Pin 0 auf: " + Tris_RB.getTris_B(0));
 		checkbox_PortB_Tris_Value0.setSelected(Tris_RB.getTris_B(0));
+		//System.out.println("setzte Tris b Pin 6 auf: " + Port_RB.getPort_RB(7));
 		checkbox_PortB_Pin_Value7.setSelected(Port_RB.getPort_RB(7));
 		checkbox_PortB_Pin_Value6.setSelected(Port_RB.getPort_RB(6));
 		checkbox_PortB_Pin_Value5.setSelected(Port_RB.getPort_RB(5));
@@ -1336,10 +1387,11 @@ public class Controller_UI extends Thread implements ActionListener {
 	}
 
 	public static void do1Command() {
-		System.out.println("EINS COMMAND");
-		InstructionRegister.nextInstruction();
 		System.out.println("Programmcounter: " + PC.programCounter);
+		InstructionRegister.nextInstruction();
+		//System.out.println("Programmcounter: " + PC.programCounter);
 		// if (PC.programCounter < Flash.firstCommandLine.length) {
+
 		try {
 			System.out.println("Edit Highlights");
 			textArea_Panel_ProgrammLSTDatei.getHighlighter().addHighlight(
@@ -1366,11 +1418,9 @@ public class Controller_UI extends Thread implements ActionListener {
 						textArea_Panel_ProgrammLSTDatei.getLineEndOffset(Flash.firstCommandLine[breakpoints[i]]),
 						painterRed);
 			}
-			for(int i = 0; i < counterBreakpoints; i++)
-			{
-				
-				if(PC.programCounter == breakpoints[i])
-				{
+			for (int i = 0; i < counterBreakpoints; i++) {
+
+				if (PC.programCounter == breakpoints[i]) {
 					btn_Bedienelemente_Stopp.doClick(100);
 				}
 			}
@@ -1380,7 +1430,9 @@ public class Controller_UI extends Thread implements ActionListener {
 		}
 
 		// }
+
 		uiUpdate();
+		
 	}
 
 	@Override
@@ -1479,9 +1531,20 @@ public class Controller_UI extends Thread implements ActionListener {
 
 		RAM.setRamAll(pinAValue, 5); // pin a
 		RAM.setRamAll(pinBValue, 6); // pin b
+		System.out.println(trisAValue + " wird in TRIS A reingeschrieben");
 		RAM.setRamAll(trisAValue, 133); // Tris a
 		RAM.setRamAll(trisBValue, 134); // Tris b
+		System.out.println("Tris A: " + RAM.getRamAll(133));
+		System.out.println("Tris B: " + RAM.getRamAll(134));
+		System.out.println("Port A: " + RAM.getRamAll(5));
+		System.out.println("Port B: " + RAM.getRamAll(6));
 
+		// table_Panel_Fileregister_SFR_GPR
+
+		table_Panel_Fileregister_SFR_GPR.setValueAt(Integer.toHexString(RAM.getRamAll(5)), 0, 6);
+		table_Panel_Fileregister_SFR_GPR.setValueAt(Integer.toHexString(RAM.getRamAll(6)), 0, 7);
+		table_Panel_Fileregister_SFR_GPR.setValueAt(Integer.toHexString(RAM.getRamAll(133)), 16, 6);
+		table_Panel_Fileregister_SFR_GPR.setValueAt(Integer.toHexString(RAM.getRamAll(134)), 16, 7);
 	}
 
 }

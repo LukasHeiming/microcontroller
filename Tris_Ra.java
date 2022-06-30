@@ -42,6 +42,7 @@ public class Tris_Ra {
     }
 
     public static void resetTrisA() {
-        RAM.ram[133] = 0;
+        RAM.ram[133] = 31;
+        System.out.println("reset tris a");
     }
 }

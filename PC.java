@@ -12,6 +12,7 @@ public class PC {
             programCounter = 0;
         }
         programCounter++;
+        System.out.println("INC AUFGERUFEN");
         PCL.setPCL(programCounter);
         //int pclath = PCLATH.getPCLATHInt() << 8;
         //programCounter = programCounter + pclath;

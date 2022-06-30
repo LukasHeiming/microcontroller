@@ -13,11 +13,15 @@ public class InstructionDecoder {
         for (int i = 0; i < 32; i++) {
             for (int j = 0; j < 9; j++) {
                 if (j != 0) {
-                    //System.out.println("RAm inhalt: " + Integer
-                    //        .parseInt(Controller_UI.table_Panel_Fileregister_SFR_GPR.getValueAt(i, j).toString(),16) + " at position " + counter + " i: "+ i + " j: " + j);
+                    // System.out.println("RAm inhalt: " + Integer
+                    // .parseInt(Controller_UI.table_Panel_Fileregister_SFR_GPR.getValueAt(i,
+                    // j).toString(),16) + " at position " + counter + " i: "+ i + " j: " + j);
+
                     RAM.setRamAll(
-                            Integer.parseInt(Controller_UI.table_Panel_Fileregister_SFR_GPR.getValueAt(i, j).toString(),16),
+                            Integer.parseInt(Controller_UI.table_Panel_Fileregister_SFR_GPR.getValueAt(i, j).toString(),
+                                    16),
                             counter);
+
                     counter += 1;
                 }
             }
@@ -787,12 +791,13 @@ public class InstructionDecoder {
 
     public static void CALL(int k) {
         // need stack
-        System.out.println("This is k in Call method: " + (PC.programCounter));
+        //System.out.println("This is k in Call method: " + (PC.programCounter));
         Stack.push(PC.programCounter + 1);
 
         // CALL PCLATH
         // int callPCL = (PCL.getPCLInt() & 0b11000) << 8;
         // k = k & callPCL;
+        System.out.println("Call ruft Goto auf mit k = " + k);
         GOTO(k);
         // unfinished
         // Normalerweise ist k eine Marke. Dadurch wird dann ein Bezeichner und keine
@@ -811,7 +816,9 @@ public class InstructionDecoder {
         // GOTO PCLATH
         // int callPCL = (PCL.getPCLInt() & 0b11000) << 8;
         // k = k & callPCL;
-        PC.programCounter = k - 1;
+
+        PC.programCounter = k;
+
     }
 
     public static void IORLW(int k) {
@@ -885,6 +892,21 @@ public class InstructionDecoder {
     }
 
     static void figureOutDCFlag(int f, boolean addition) {
+        if(addition == false)
+        {
+            f = f & 15;
+            int w = W_Register.getValue() & 15;
+            f = f - w;
+            if(f >= 0) {
+                StatusReg.setDigitCarryFlag(1);
+            }
+            else
+            {
+                StatusReg.setDigitCarryFlag(0);
+            }
+            return;
+        }
+        
         String binaryNumber1 = "";
         binaryNumber1 = Integer.toBinaryString(f);
         String binaryNumber2 = "";

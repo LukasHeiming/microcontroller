@@ -4,8 +4,7 @@ public class Tris_RB {
 
     public static boolean getTris_B(int index) {
         int bit = InstructionDecoder.getBit(RAM.ram[134], index);
-        if(bit == 0)
-        {
+        if(bit == 0){
             return false;
         } else{
             return true;
@@ -41,7 +40,7 @@ public class Tris_RB {
     }
 
     public static void resetTrisB() {
-        RAM.ram[134] = 0;
+        RAM.ram[134] = 255;
     }
 
     
